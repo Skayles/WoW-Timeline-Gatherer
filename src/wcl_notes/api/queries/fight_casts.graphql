@@ -1,0 +1,18 @@
+# Developer tool only (scripts/spell_lists.py): every friendly cast of one fight, to count the
+# spells of each spec. The app itself always filters by sourceID (API points budget).
+query FightCasts($code: String!, $fightID: Int!, $startTime: Float!, $endTime: Float!) {
+  reportData {
+    report(code: $code) {
+      events(
+        dataType: Casts
+        fightIDs: [$fightID]
+        startTime: $startTime
+        endTime: $endTime
+        limit: 10000
+      ) {
+        data
+        nextPageTimestamp
+      }
+    }
+  }
+}

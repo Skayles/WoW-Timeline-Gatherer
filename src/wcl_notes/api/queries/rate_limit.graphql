@@ -1,0 +1,8 @@
+# API points spent this hour (limitPerHour is 720 for this client).
+query RateLimit {
+  rateLimitData {
+    limitPerHour
+    pointsSpentThisHour
+    pointsResetIn
+  }
+}

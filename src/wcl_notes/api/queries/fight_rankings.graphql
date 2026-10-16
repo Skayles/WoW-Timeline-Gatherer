@@ -1,0 +1,11 @@
+# Developer tool only (scripts/spell_lists.py): top kills of a boss. fightRankings is raw JSON:
+# {page, hasMorePages, count, rankings: [{duration, startTime, report {code, fightID}, guild, server}]}
+query FightRankings($encounterID: Int!, $difficulty: Int!, $page: Int!) {
+  worldData {
+    encounter(id: $encounterID) {
+      id
+      name
+      fightRankings(difficulty: $difficulty, page: $page)
+    }
+  }
+}

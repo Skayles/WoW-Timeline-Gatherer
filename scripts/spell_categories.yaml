@@ -1,0 +1,215 @@
+# Spells kept in each spec's list, by category (see scripts/spell_lists.py).
+# IDs come from `spell_lists.py review` on real top Mythic logs; names are filled in from WCL
+# by `build`. A trailing * pre-selects the spell. Rules: major offensive cooldowns, raid
+# cooldowns and tank major defensives are pre-selected; personal defensives, utility and
+# movement are listed but left unticked. Potions, trinkets and racials: _common.yaml.
+specs:
+  DeathKnight-Blood:
+    offensive: [49028*]                                   # Dancing Rune Weapon
+    raid_cd: [51052*]                                     # Anti-Magic Zone
+    defensive: [55233*, 48792*, 48707, 49039]             # Vampiric Blood, Icebound, AMS, Lichborne
+    utility: [108199, 49576, 56222]                       # Gorefiend's Grasp, Death Grip, Dark Command
+    movement: [48265]                                     # Death's Advance
+  DeathKnight-Frost:
+    offensive: [51271*, 1249658*, 279302*, 439843]        # Pillar, Breath of Sindragosa, Frostwyrm's Fury, Reaper's Mark
+    raid_cd: [51052*]
+    defensive: [48792, 48707, 48743]                      # Icebound, AMS, Death Pact
+    utility: [49576]
+    movement: [48265]
+  DeathKnight-Unholy:
+    offensive: [42650*, 1233448, 1271967]                 # Army of the Dead, Dark Transformation, Blightfall
+    raid_cd: [51052*]
+    defensive: [48792, 48707]
+    utility: [49576]
+    movement: [48265]
+  DemonHunter-Devourer:
+    offensive: [1226019, 1241937]                         # Reap, Soul Immolation
+    raid_cd: [196718*]                                    # Darkness
+    defensive: [198589]                                   # Blur
+  DemonHunter-Havoc:
+    offensive: [200166*, 370965*, 258860]                 # Metamorphosis, The Hunt, Essence Break
+    raid_cd: [196718*]
+    defensive: [198589]
+    utility: [183752]                                     # Disrupt
+    movement: [195072, 198793]                            # Fel Rush, Vengeful Retreat
+  DemonHunter-Vengeance:
+    offensive: [212084, 390163]                           # Fel Devastation, Sigil of Spite
+    raid_cd: [196718*]
+    defensive: [204021*, 187827*]                         # Fiery Brand, Metamorphosis
+    utility: [202138, 185245]                             # Sigil of Chains, Torment
+    movement: [198793]
+  Druid-Balance:
+    offensive: [102560*, 202770]                          # Incarnation: Chosen of Elune, Fury of Elune
+    raid_cd: [77761]                                      # Stampeding Roar
+    defensive: [22812]                                    # Barkskin
+    utility: [102793, 29166]                              # Ursol's Vortex, Innervate
+    movement: [102383]                                    # Wild Charge
+  Druid-Feral:
+    offensive: [106951*, 391528*, 274837, 5217]           # Berserk, Convoke, Feral Frenzy, Tiger's Fury
+    raid_cd: [77764]                                      # Stampeding Roar
+    defensive: [61336, 22812]                             # Survival Instincts, Barkskin
+    utility: [106839]                                     # Skull Bash
+    movement: [49376, 1850]                               # Wild Charge, Dash
+  Druid-Guardian:
+    offensive: [1269658, 1252871]                         # Wild Guardian, Red Moon
+    raid_cd: [77761]
+    defensive: [102558*, 61336*, 22812*, 204066, 22842]   # Incarnation, Survival Instincts, Barkskin, Lunar Beam, Frenzied Regen
+    utility: [106839, 6795, 29166]                        # Skull Bash, Growl, Innervate
+    movement: [16979]
+  Druid-Restoration:
+    offensive: [391528*, 132158]                          # Convoke, Nature's Swiftness
+    raid_cd: [740*]                                       # Tranquility
+    defensive: [102342, 22812]                            # Ironbark (external), Barkskin
+    utility: [29166, 88423]                               # Innervate, Nature's Cure
+  Evoker-Augmentation:
+    offensive: [403631*, 404977*, 370553]                 # Breath of Eons, Time Skip, Tip the Scales
+    raid_cd: [374968, 374227*]                            # Time Spiral, Zephyr
+    defensive: [363916]                                   # Obsidian Scales
+  Evoker-Devastation:
+    offensive: [375087*, 433874, 370553]                  # Dragonrage, Deep Breath, Tip the Scales
+    raid_cd: [374227*, 390386*, 374968]                   # Zephyr, Fury of the Aspects, Time Spiral
+    defensive: [363916]
+  Evoker-Preservation:
+    offensive: [370537*, 370553]                          # Stasis, Tip the Scales
+    raid_cd: [363534*, 374227*, 390386*]                  # Rewind, Zephyr, Fury of the Aspects
+    defensive: [363916]
+    utility: [360823]                                     # Naturalize
+  Hunter-BeastMastery:
+    offensive: [19574*]                                   # Bestial Wrath
+    defensive: [264735, 109304]                           # Survival of the Fittest, Exhilaration
+    movement: [186257, 781]                               # Aspect of the Cheetah, Disengage
+  Hunter-Marksmanship:
+    offensive: [288613*, 260243, 1264949]                 # Trueshot, Volley, Moonlight Chakram
+    defensive: [264735, 109304]
+    movement: [186257, 781]
+  Hunter-Survival:
+    offensive: [1250646*, 1264949, 1261193]               # Takedown, Moonlight Chakram, Boomstick
+    defensive: [264735, 186265]                           # Survival of the Fittest, Aspect of the Turtle
+    utility: [186289]                                     # Aspect of the Eagle
+    movement: [190925, 781]                               # Harpoon, Disengage
+  Mage-Arcane:
+    offensive: [365350*, 321507]                          # Arcane Surge, Touch of the Magi
+    raid_cd: [80353*]                                     # Time Warp
+    defensive: [235450, 414658]                           # Prismatic Barrier, Ice Cold
+    movement: [212653]                                    # Shimmer
+  Mage-Fire:
+    offensive: [190319*, 153561]                          # Combustion, Meteor
+    raid_cd: [80353*]
+    defensive: [235313, 414658, 342245]                   # Blazing Barrier, Ice Cold, Alter Time
+    utility: [122]                                        # Frost Nova
+    movement: [212653]
+  Mage-Frost:
+    offensive: [205021, 84714]                            # Ray of Frost, Frozen Orb
+    raid_cd: [80353*]
+    defensive: [11426, 414658, 342245]                    # Ice Barrier, Ice Cold, Alter Time
+    movement: [212653]
+  Monk-Brewmaster:
+    offensive: [132578*, 322109, 325153]                  # Invoke Niuzao, Touch of Death, Exploding Keg
+    defensive: [115203*, 1241059, 115399]                 # Fortifying Brew, Celestial Infusion, Black Ox Brew
+    utility: [116844, 115546]                             # Ring of Peace, Provoke
+    movement: [116841, 109132]                            # Tiger's Lust, Roll
+  Monk-Mistweaver:
+    offensive: [322118*, 443028*, 322109]                 # Invoke Yu'lon, Celestial Conduit, Touch of Death
+    raid_cd: [115310*, 388615*]                           # Revival, Restoral
+    defensive: [116849, 115203]                           # Life Cocoon (external), Fortifying Brew
+    utility: [115450]                                     # Detox
+    movement: [109132]
+  Monk-Windwalker:
+    offensive: [123904*, 1249625*, 443028, 322109]        # Invoke Xuen, Zenith, Celestial Conduit, Touch of Death
+    defensive: [122470, 115203]                           # Touch of Karma, Fortifying Brew
+    movement: [116841, 101545, 109132]                    # Tiger's Lust, Flying Serpent Kick, Roll
+  Paladin-Holy:
+    offensive: [31884*, 375576]                           # Avenging Wrath, Divine Toll
+    raid_cd: [31821*]                                     # Aura Mastery
+    defensive: [498, 642, 6940, 633]                      # Divine Protection, Divine Shield, Sacrifice, Lay on Hands
+    utility: [4987]                                       # Cleanse
+    movement: [190784]                                    # Divine Steed
+  Paladin-Protection:
+    offensive: [389539*, 375576]                          # Sentinel, Divine Toll
+    defensive: [86659*, 31850*, 642]                      # Guardian of Ancient Kings, Ardent Defender, Divine Shield
+    utility: [204018, 1044, 853, 62124]                   # Spellwarding, Freedom, Hammer of Justice, Hand of Reckoning
+    movement: [190784]
+  Paladin-Retribution:
+    offensive: [31884*, 343527, 375576]                   # Avenging Wrath, Execution Sentence, Divine Toll
+    defensive: [403876, 642]                              # Divine Protection, Divine Shield
+    movement: [190784]
+  Priest-Discipline:
+    offensive: [472433*, 421453*]                         # Evangelism, Ultimate Penitence
+    defensive: [33206, 19236, 586]                        # Pain Suppression (external), Desperate Prayer, Fade
+    utility: [10060*, 527]                                # Power Infusion, Purify
+    movement: [121536]                                    # Angelic Feather
+  Priest-Holy:
+    offensive: [200183*]                                  # Apotheosis
+    raid_cd: [64843*]                                     # Divine Hymn
+    defensive: [47788, 19236, 586]                        # Guardian Spirit (external), Desperate Prayer, Fade
+    utility: [10060*, 527, 88625]                         # Power Infusion, Purify, Holy Word: Chastise
+    movement: [121536]
+  Priest-Shadow:
+    offensive: [228260*, 120644]                          # Voidform, Halo
+    raid_cd: [15286*]                                     # Vampiric Embrace
+    defensive: [19236, 586]
+    utility: [10060*]                                     # Power Infusion
+    movement: [121536]
+  Rogue-Assassination:
+    offensive: [360194*, 385627*, 1856*, 1247227, 5938]   # Deathmark, Kingsbane, Vanish, Crimson Tempest, Shiv
+    defensive: [31224, 5277, 1966, 185311]                # Cloak, Evasion, Feint, Crimson Vial
+    utility: [1766]                                       # Kick
+    movement: [36554, 2983]                               # Shadowstep, Sprint
+  Rogue-Outlaw:
+    offensive: [13750*, 51690, 1277933, 381989]           # Adrenaline Rush, Killing Spree, Preparation, Keep It Rolling
+    defensive: [31224, 5277, 1966]
+    movement: [195457, 2983]                              # Grappling Hook, Sprint
+  Rogue-Subtlety:
+    offensive: [121471*, 1856*, 185313, 426591]           # Shadow Blades, Vanish, Shadow Dance, Goremaw's Bite
+    defensive: [31224, 5277, 1966, 185311]
+    utility: [1766]
+    movement: [36554, 2983]
+  Shaman-Elemental:
+    offensive: [114050*, 191634]                          # Ascendance, Stormkeeper
+    raid_cd: [2825*, 32182*]                              # Bloodlust, Heroism
+    defensive: [108271, 198103]                           # Astral Shift, Earth Elemental
+    movement: [79206, 192063]                             # Spiritwalker's Grace, Gust of Wind
+  Shaman-Enhancement:
+    offensive: [114051*]                                  # Ascendance
+    raid_cd: [2825*, 192077]                              # Bloodlust, Wind Rush Totem
+    defensive: [108271, 198103]
+    utility: [57994, 192058, 51485]                       # Wind Shear, Capacitor Totem, Earthgrab Totem
+    movement: [196884, 58875]                             # Feral Lunge, Spirit Walk
+  Shaman-Restoration:
+    offensive: [114052*, 1267068, 378081]                 # Ascendance, Stormstream Totem, Nature's Swiftness
+    raid_cd: [98008*, 2825*, 32182*]                      # Spirit Link Totem, Bloodlust, Heroism
+    defensive: [108271]
+    utility: [77130]                                      # Purify Spirit
+    movement: [79206, 192063]
+  Warlock-Affliction:
+    offensive: [205180*, 442726, 1257052]                 # Summon Darkglare, Malevolence, Dark Harvest
+    defensive: [104773, 108416]                           # Unending Resolve, Dark Pact
+    utility: [6789]                                       # Mortal Coil
+    movement: [111400]                                    # Burning Rush
+  Warlock-Demonology:
+    offensive: [265187*, 1276452]                         # Summon Demonic Tyrant, Grimoire: Imp Lord
+    defensive: [104773, 108416]
+    utility: [132411]                                     # Singe Magic
+    movement: [111400]
+  Warlock-Destruction:
+    offensive: [1122*, 442726]                            # Summon Infernal, Malevolence
+    defensive: [104773, 108416]
+    utility: [6789]
+    movement: [111400]
+  Warrior-Arms:
+    offensive: [107574*, 167105, 446035]                  # Avatar, Colossus Smash, Bladestorm
+    raid_cd: [97462*]                                     # Rallying Cry
+    defensive: [118038, 23920]                            # Die by the Sword, Spell Reflection
+    utility: [6552, 107570]                               # Pummel, Storm Bolt
+    movement: [52174, 100]                                # Heroic Leap, Charge
+  Warrior-Fury:
+    offensive: [1719*, 385059, 446035]                    # Recklessness, Odyn's Fury, Bladestorm
+    raid_cd: [97462*]
+    defensive: [184364, 23920]                            # Enraged Regeneration, Spell Reflection
+    movement: [52174, 100]
+  Warrior-Protection:
+    offensive: [107574*, 385952]                          # Avatar, Shield Charge
+    raid_cd: [97462*]
+    defensive: [871*, 1160, 23920]                        # Shield Wall, Demoralizing Shout, Spell Reflection
+    utility: [1161, 355]                                  # Challenging Shout, Taunt
+    movement: [52174, 100]
