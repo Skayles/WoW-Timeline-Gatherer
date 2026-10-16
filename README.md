@@ -58,7 +58,13 @@ temps relatifs à la phase), `--dur 5` (NSRT), `--offset 2` (prévenir 2 s avant
 `-o note.txt` (fichier UTF-8, recommandé sous PowerShell).
 
 Sans `--spells`, la note garde les sorts importants de la spé définis dans
-`src/wcl_notes/data/spells/` (plus potions et bijoux de `_common.yaml`) ; `--all` garde tout.
+`src/wcl_notes/data/spells/` (40 spés, plus potions, bijoux et racials de `_common.yaml`) ;
+`--all` garde tout. `--merge 0.5` (défaut) regroupe un même sort relancé à moins de 0,5 s
+(casts enregistrés en double par WCL).
+
+Les listes de sorts sont générées à partir de vrais top logs :
+`uv run python scripts/spell_lists.py mine`, puis `review` et `build`
+(classement dans `scripts/spell_categories.yaml`).
 Les phases NSRT de chaque boss sont décrites dans `src/wcl_notes/data/encounters/`.
 
 ## Exécutable Windows
