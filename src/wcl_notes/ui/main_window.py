@@ -3,7 +3,6 @@
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QAction, QKeySequence
 from PySide6.QtWidgets import (
-    QLabel,
     QMainWindow,
     QMessageBox,
     QProgressBar,
@@ -19,9 +18,9 @@ from wcl_notes.ui.copy_note_dialog import CopyNoteDialog
 from wcl_notes.ui.icons import IconProvider
 from wcl_notes.ui.legend_panel import LegendPanel
 from wcl_notes.ui.log_panel import LogPanel
+from wcl_notes.ui.rankings_panel import RankingsPanel
 from wcl_notes.ui.settings import AppSettings
 from wcl_notes.ui.settings_dialog import SettingsDialog
-from wcl_notes.ui.style import TEXT_DIM
 from wcl_notes.ui.timeline_view import TimelineView
 from wcl_notes.ui.tracks_panel import TracksPanel
 from wcl_notes.ui.workers import TaskRunner
@@ -44,16 +43,11 @@ class MainWindow(QMainWindow):
         self._controller = controller
         self._settings = settings
 
-        rankings = QLabel(
-            self.tr("Classements des meilleurs logs : bientôt (étape 4 de la feuille de route).")
-        )
-        rankings.setWordWrap(True)
-        rankings.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        rankings.setStyleSheet(f"color: {TEXT_DIM}; padding: 20px;")
+        self.rankings_panel = RankingsPanel(controller, settings, icons)
         self.log_panel = LogPanel(controller, settings)
         self.tracks_panel = TracksPanel(controller)
         self.tabs = QTabWidget()
-        self.tabs.addTab(rankings, self.tr("Classements"))
+        self.tabs.addTab(self.rankings_panel, self.tr("Classements"))
         self.tabs.addTab(self.log_panel, self.tr("Log"))
         self.tabs.addTab(self.tracks_panel, self.tr("Pistes"))
         self.tabs.setCurrentIndex(LOG_TAB)

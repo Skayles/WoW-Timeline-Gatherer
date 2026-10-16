@@ -13,6 +13,7 @@ from pytestqt.qtbot import QtBot
 from conftest import MAGE_ID, REPORT_CODE, ROGUE_ID, FakeWcl
 from wcl_notes.api.errors import WclError
 from wcl_notes.domain.models import Report, TrackRef
+from wcl_notes.domain.rankings import RankingQuery
 from wcl_notes.services.notes import NoteFormat, NoteOptions, build_note
 from wcl_notes.services.report_navigation import resolve_fight
 from wcl_notes.services.report_reference import parse_report_reference
@@ -22,6 +23,7 @@ from wcl_notes.ui.icons import IconProvider
 from wcl_notes.ui.legend_panel import SPELL_ID_ROLE, LegendPanel
 from wcl_notes.ui.log_panel import ID_ROLE, LogPanel
 from wcl_notes.ui.main_window import MainWindow
+from wcl_notes.ui.rankings_panel import RankingsPanel
 from wcl_notes.ui.settings import DEFAULT_PLAYER_NAME, AppSettings
 from wcl_notes.ui.timeline_view import LABEL_WIDTH, MAX_PX_PER_S, TimelineView
 from wcl_notes.ui.tracks_panel import TracksPanel
@@ -358,3 +360,83 @@ def test_icon_provider_uses_the_disk_cache(tmp_path: Path) -> None:
     placeholder = provider.pixmap("missing.jpg", 28)
     assert placeholder.toImage().pixelColor(14, 14).red() < 200
     assert provider.pixmap("../evil.jpg", 28).cacheKey() == placeholder.cacheKey()
+
+
+# --- rankings ------------------------------------------------------------------------
+
+
+@pytest.fixture
+def rankings_panel(
+    qtbot: QtBot, controller: AppController, settings: AppSettings, icons: IconProvider
+) -> RankingsPanel:
+    panel = RankingsPanel(controller, settings, icons)
+    qtbot.addWidget(panel)
+    panel.ensure_catalog()
+    return panel
+
+
+def test_rankings_panel_prefills_my_spec(rankings_panel: RankingsPanel) -> None:
+    assert rankings_panel.raid.currentText() == "The Venomous Abyss"
+    assert rankings_panel.boss.count() == 10
+    assert rankings_panel.game_class.currentData() == "Rogue"
+    assert rankings_panel.spec.currentData() == "Assassination"
+    assert rankings_panel.difficulty.currentData() == 5
+    assert rankings_panel.metric_box.currentData() == "dps"
+    holy = rankings_panel.game_class.findData("Paladin")
+    rankings_panel.game_class.setCurrentIndex(holy)
+    rankings_panel.spec.setCurrentIndex(rankings_panel.spec.findData("Holy"))
+    assert rankings_panel.metric_box.currentData() == "hps"
+
+
+def test_rankings_search_filter_and_pages(rankings_panel: RankingsPanel, fake_wcl: FakeWcl) -> None:
+    rankings_panel.boss.setCurrentIndex(rankings_panel.boss.findData(3470))
+    rankings_panel.search()
+    assert rankings_panel.table.topLevelItemCount() == 12
+    first = rankings_panel.table.topLevelItem(0)
+    assert first is not None and first.text(0) == "1"
+
+    rankings_panel.min_kill.setText("5:00")
+    rankings_panel.max_kill.setText("5:30")
+    shown = [e.duration_ms for e in rankings_panel.visible_entries()]
+    assert shown and all(300_000 <= d <= 330_000 for d in shown)
+    rankings_panel.sort.setCurrentIndex(rankings_panel.sort.findData("duration"))
+    assert shown != [] and [e.duration_ms for e in rankings_panel.visible_entries()] == sorted(
+        shown
+    )
+
+    assert rankings_panel.more_button.isEnabled()
+    rankings_panel.load_more()
+    assert not rankings_panel.more_button.isEnabled()
+    assert [v["page"] for name, v in fake_wcl.calls if name == "CharacterRankings"] == [1, 2]
+
+
+def test_ticking_a_ranking_adds_its_track(
+    rankings_panel: RankingsPanel, controller: AppController
+) -> None:
+    rankings_panel.boss.setCurrentIndex(rankings_panel.boss.findData(3470))
+    rankings_panel.search()
+    item = next(
+        i
+        for i in (rankings_panel.table.topLevelItem(n) for n in range(12))
+        if i is not None and "Vénéfique" in i.text(1)
+    )
+    item.setCheckState(0, Qt.CheckState.Checked)
+    entry = controller.workspace.entries[0]
+    assert entry.ref == ROGUE_REF
+    assert entry.origin == "Classement #3"
+    assert item.text(5) == "✓"
+    item.setCheckState(0, Qt.CheckState.Unchecked)
+    assert controller.workspace.entries == []
+
+
+def test_rankings_are_cached_for_an_hour(fake_wcl: FakeWcl) -> None:
+    now = [0.0]
+    controller = AppController(
+        TaskRunner(synchronous=True), client_factory=fake_wcl.client, clock=lambda: now[0]
+    )
+    query = RankingQuery(3470, 5, "Rogue", "Assassination", "dps")
+    for _ in range(2):
+        controller.load_rankings(query)
+    now[0] = 3601.0
+    controller.load_rankings(query)
+    assert sum(name == "CharacterRankings" for name, _ in fake_wcl.calls) == 2

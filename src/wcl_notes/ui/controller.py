@@ -1,6 +1,7 @@
 """Glue between the widgets, the WCL API (through background tasks) and the workspace."""
 
 import threading
+import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -8,8 +9,12 @@ from PySide6.QtCore import QObject, Signal
 
 from wcl_notes.api.client import WclClient
 from wcl_notes.api.credentials import load_credentials
+from wcl_notes.api.rankings import fetch_catalog, fetch_rankings
 from wcl_notes.api.reports import fetch_player_casts, fetch_player_roles, fetch_report
 from wcl_notes.domain.models import Actor, Cast, Fight, Report, Role, Track, TrackRef
+from wcl_notes.domain.rankings import GameCatalog, RankingEntry, RankingQuery, RankingsPage
+from wcl_notes.services.rankings import find_ranked_player
+from wcl_notes.services.report_navigation import resolve_fight
 from wcl_notes.services.report_reference import (
     InvalidReportReferenceError,
     ReportReference,
@@ -20,6 +25,12 @@ from wcl_notes.services.workspace import COMFORTABLE_TRACK_COUNT, DifferentEncou
 from wcl_notes.ui.workers import TaskRunner
 
 ClientFactory = Callable[[], WclClient]
+RankingKey = tuple[str, int, str]  # report code, fight id, character name
+RANKINGS_TTL_S = 3600.0  # rankings move; reports are immutable
+
+
+def ranking_key(entry: RankingEntry) -> RankingKey:
+    return (entry.report_code, entry.fight_id, entry.name)
 
 
 def default_client_factory() -> WclClient:
@@ -36,6 +47,9 @@ class TrackState:
 class AppController(QObject):
     report_loaded = Signal(object, object)  # Report, ReportReference
     roles_loaded = Signal(str, int, object)  # report code, fight id, dict[int, Role]
+    catalog_loaded = Signal(object)  # GameCatalog
+    rankings_loaded = Signal(object)  # RankingsPage
+    ranking_state_changed = Signal(object)  # RankingKey
     workspace_changed = Signal()
     selection_changed = Signal()
     track_state_changed = Signal(object, str)  # TrackRef, TrackState
@@ -47,6 +61,8 @@ class AppController(QObject):
         runner: TaskRunner,
         client_factory: ClientFactory = default_client_factory,
         parent: QObject | None = None,
+        *,
+        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         super().__init__(parent)
         self.workspace = Workspace()
@@ -59,6 +75,13 @@ class AppController(QObject):
         self._loading: set[TrackRef] = set()
         self._cancelled: set[TrackRef] = set()
         self._failed: set[TrackRef] = set()
+        self._clock = clock
+        self._catalog: GameCatalog | None = None
+        self._rankings: dict[RankingQuery, tuple[float, RankingsPage]] = {}
+        self._ranked_refs: dict[RankingKey, TrackRef] = {}
+        self._ranked_loading: set[RankingKey] = set()
+        self._ranked_cancelled: set[RankingKey] = set()
+        self._ranked_failed: set[RankingKey] = set()
 
     # --- WCL access ---------------------------------------------------------------
 
@@ -157,25 +180,7 @@ class AppController(QObject):
                 self._cancelled.discard(ref)
                 self.track_state_changed.emit(ref, TrackState.REMOVED)
                 return
-            try:
-                self.workspace.add(
-                    track,
-                    spells=report.spells,
-                    phase_infos=report.phases.get(fight.encounter_id, ()),
-                    report_title=report.title,
-                    origin=origin,
-                )
-            except DifferentEncounterError as exc:
-                self.track_state_changed.emit(ref, TrackState.REMOVED)
-                self.error.emit(str(exc))
-                return
-            self.track_state_changed.emit(ref, TrackState.LOADED)
-            self.workspace_changed.emit()
-            if len(self.workspace.entries) > COMFORTABLE_TRACK_COUNT:
-                self.message.emit(
-                    f"Plus de {COMFORTABLE_TRACK_COUNT} pistes : la timeline devient chargée "
-                    "et chaque piste consomme du quota API."
-                )
+            self._add_loaded_track(report, track, origin)
 
         def failed(message: str) -> None:
             self._loading.discard(ref)
@@ -185,6 +190,29 @@ class AppController(QObject):
             self.error.emit(f"{actor.name} : {message}")
 
         self._runner.run(work, loaded, failed)
+
+    def _add_loaded_track(self, report: Report, track: Track, origin: str) -> bool:
+        ref = track.ref
+        try:
+            self.workspace.add(
+                track,
+                spells=report.spells,
+                phase_infos=report.phases.get(track.fight.encounter_id, ()),
+                report_title=report.title,
+                origin=origin,
+            )
+        except DifferentEncounterError as exc:
+            self.track_state_changed.emit(ref, TrackState.REMOVED)
+            self.error.emit(str(exc))
+            return False
+        self.track_state_changed.emit(ref, TrackState.LOADED)
+        self.workspace_changed.emit()
+        if len(self.workspace.entries) > COMFORTABLE_TRACK_COUNT:
+            self.message.emit(
+                f"Plus de {COMFORTABLE_TRACK_COUNT} pistes : la timeline devient chargée "
+                "et chaque piste consomme du quota API."
+            )
+        return True
 
     def remove_track(self, ref: TrackRef) -> None:
         if ref in self._loading:
@@ -200,6 +228,7 @@ class AppController(QObject):
     def clear(self) -> None:
         refs = [e.ref for e in self.workspace.entries]
         self._cancelled |= self._loading
+        self._ranked_cancelled |= self._ranked_loading
         self.workspace.clear()
         for ref in refs:
             self.track_state_changed.emit(ref, TrackState.REMOVED)
@@ -238,3 +267,103 @@ class AppController(QObject):
 
     def cached_report(self, ref: ReportReference) -> Report | None:
         return self._reports.get(ref.code)
+
+    # --- rankings -----------------------------------------------------------------
+
+    @property
+    def catalog(self) -> GameCatalog | None:
+        return self._catalog
+
+    def load_catalog(self) -> None:
+        if self._catalog is not None:
+            self.catalog_loaded.emit(self._catalog)
+            return
+
+        def loaded(catalog: object) -> None:
+            assert isinstance(catalog, GameCatalog)
+            self._catalog = catalog
+            self.catalog_loaded.emit(catalog)
+
+        self._runner.run(lambda: fetch_catalog(self.client()), loaded, self.error.emit)
+
+    def load_rankings(self, query: RankingQuery) -> None:
+        cached = self._rankings.get(query)
+        if cached is not None and self._clock() - cached[0] < RANKINGS_TTL_S:
+            self.rankings_loaded.emit(cached[1])
+            return
+
+        def loaded(page: object) -> None:
+            assert isinstance(page, RankingsPage)
+            self._rankings[query] = (self._clock(), page)
+            self.message.emit(f"{len(page.entries)} classements chargés (page {query.page}).")
+            self.rankings_loaded.emit(page)
+
+        self.message.emit("Chargement des classements…")
+        self._runner.run(lambda: fetch_rankings(self.client(), query), loaded, self.error.emit)
+
+    def ranked_track_state(self, entry: RankingEntry) -> str | None:
+        key = ranking_key(entry)
+        if key in self._ranked_loading:
+            return TrackState.LOADING
+        ref = self._ranked_refs.get(key)
+        if ref is not None and self.workspace.entry(ref) is not None:
+            return TrackState.LOADED
+        if key in self._ranked_failed:
+            return TrackState.ERROR
+        return None
+
+    def add_ranked_track(self, entry: RankingEntry, encounter_id: int) -> None:
+        """Load the report of a top log, find the ranked player in it, then its casts."""
+        key = ranking_key(entry)
+        if self.ranked_track_state(entry) in (TrackState.LOADING, TrackState.LOADED):
+            return
+        if not self.workspace.accepts(encounter_id):
+            self.error.emit("La timeline contient déjà un autre boss : videz-la d'abord.")
+            self.ranking_state_changed.emit(key)
+            return
+        self._ranked_loading.add(key)
+        self._ranked_cancelled.discard(key)
+        self._ranked_failed.discard(key)
+        self.ranking_state_changed.emit(key)
+        cached = self._reports.get(entry.report_code)
+
+        def work() -> tuple[Report, Track]:
+            client = self.client()
+            report = cached or fetch_report(client, entry.report_code)
+            fight = resolve_fight(report, entry.fight_id)
+            actor = find_ranked_player(report, fight, entry)
+            events = fetch_player_casts(client, report.code, fight, actor.id)
+            ref = TrackRef(report.code, fight.id, actor.id)
+            return report, Track(ref, actor, fight, build_casts(events, fight))
+
+        def loaded(result: object) -> None:
+            assert isinstance(result, tuple)
+            report, track = result
+            self._reports[report.code] = report
+            self._ranked_loading.discard(key)
+            if key in self._ranked_cancelled:
+                self._ranked_cancelled.discard(key)
+            else:
+                self._ranked_refs[key] = track.ref
+                self._add_loaded_track(report, track, f"Classement #{entry.rank}")
+            self.ranking_state_changed.emit(key)
+
+        def failed(message: str) -> None:
+            self._ranked_loading.discard(key)
+            self._ranked_cancelled.discard(key)
+            self._ranked_failed.add(key)
+            self.ranking_state_changed.emit(key)
+            self.error.emit(f"{entry.name} (#{entry.rank}) : {message}")
+
+        self._runner.run(work, loaded, failed)
+
+    def remove_ranked_track(self, entry: RankingEntry) -> None:
+        key = ranking_key(entry)
+        if key in self._ranked_loading:
+            self._ranked_cancelled.add(key)
+            return
+        self._ranked_failed.discard(key)
+        ref = self._ranked_refs.pop(key, None)
+        if ref is not None:
+            self.remove_track(ref)
+        self.ranking_state_changed.emit(key)
