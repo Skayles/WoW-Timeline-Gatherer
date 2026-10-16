@@ -19,6 +19,23 @@ uv run python -m wcl_notes.cli   # CLI (sans interface)
 Identifiants API : créer un client sur https://www.warcraftlogs.com/api/clients/ puis renseigner
 `WCL_CLIENT_ID` et `WCL_CLIENT_SECRET` dans un fichier `.env` (jamais commité).
 
+## Interface
+
+`uv run python -m wcl_notes` ouvre la fenêtre principale :
+
+- **Log** : collez une URL ou un code de report, choisissez un fight (kills par défaut, wipes
+  accessibles), puis cochez les joueurs, groupés par rôle. « Cocher ma spé » et « Me cocher »
+  utilisent les réglages. Une URL avec `#fight=…&source=…` pré-sélectionne le fight et le joueur.
+- **Pistes** : visibilité, couleur, lien vers WCL et retrait de chaque piste. Une timeline = un boss.
+- **Timeline** : molette = défiler, Ctrl+molette = zoomer, clic sur un cast = le désactiver.
+  Les bandes orange sont les intermissions WCL, les pointillés bleus les changements de phase NSRT.
+- **Sorts** (à droite) : décocher un sort le retire de la timeline et de la note ;
+  « Tous les casts » liste aussi les sorts de rotation.
+- **Copier la note** (Ctrl+Maj+C) : MRT ou NSRT, Player Name, décalage, durée NSRT,
+  note de raid (un nom par piste), aperçu en direct et bouton Copier.
+- **Réglages** : nom du joueur, spé, identifiants API (enregistrés dans le gestionnaire
+  d'identifiants Windows).
+
 ## CLI
 
 Exploration pas à pas : sans `--fight`, la commande liste les fights de boss ; sans `--player`,
