@@ -32,8 +32,13 @@ uv run python -m wcl_notes.cli <code> -f 7 -p Joueur -s 360194,385627,1856   # n
 ```
 
 Une URL avec `#fight=7&source=126` pré-remplit le fight et le joueur. Options utiles :
-`-n` (nom écrit dans la note, « Kràùck » par défaut), `--offset 2` (prévenir 2 s avant),
-`--pets`, `-o note.txt` (fichier UTF-8, recommandé sous PowerShell).
+`-n` (nom écrit dans la note, « Kràùck » par défaut), `-F nsrt` (note Northern Sky Raid Tools,
+temps relatifs à la phase), `--dur 5` (NSRT), `--offset 2` (prévenir 2 s avant), `--pets`,
+`-o note.txt` (fichier UTF-8, recommandé sous PowerShell).
+
+Sans `--spells`, la note garde les sorts importants de la spé définis dans
+`src/wcl_notes/data/spells/` (plus potions et bijoux de `_common.yaml`) ; `--all` garde tout.
+Les phases NSRT de chaque boss sont décrites dans `src/wcl_notes/data/encounters/`.
 
 ## Qualité
 
