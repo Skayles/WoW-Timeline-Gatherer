@@ -5,10 +5,12 @@ import json
 from PySide6.QtCore import QSettings
 
 from wcl_notes.domain.spells import SpellPreset
+from wcl_notes.i18n import LANGUAGES
 from wcl_notes.services.presets import PresetKey
 
-DEFAULT_PLAYER_NAME = "Kràùck"
-DEFAULT_SPEC = "Rogue-Assassination"
+# Empty until the user fills them in Settings (the app is shared with other raiders).
+DEFAULT_PLAYER_NAME = ""
+DEFAULT_SPEC = ""
 MAX_RECENT_REPORTS = 10
 
 
@@ -21,12 +23,22 @@ class AppSettings:
         return str(value) if value is not None else default
 
     @property
+    def language(self) -> str:
+        """Interface language ("fr" or "en"); empty = the system language."""
+        value = self._str("language", "")
+        return value if value in LANGUAGES else ""
+
+    @language.setter
+    def language(self, value: str) -> None:
+        self._settings.setValue("language", value if value in LANGUAGES else "")
+
+    @property
     def player_name(self) -> str:
         return self._str("player_name", DEFAULT_PLAYER_NAME)
 
     @player_name.setter
     def player_name(self, value: str) -> None:
-        self._settings.setValue("player_name", value.strip() or DEFAULT_PLAYER_NAME)
+        self._settings.setValue("player_name", value.strip())
 
     @property
     def my_spec(self) -> str:
@@ -35,7 +47,7 @@ class AppSettings:
 
     @my_spec.setter
     def my_spec(self, value: str) -> None:
-        self._settings.setValue("my_spec", value.strip() or DEFAULT_SPEC)
+        self._settings.setValue("my_spec", value.strip())
 
     @property
     def note_format(self) -> str:

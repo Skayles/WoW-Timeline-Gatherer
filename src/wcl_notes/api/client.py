@@ -20,6 +20,7 @@ from wcl_notes.api.errors import (
     WclNetworkError,
 )
 from wcl_notes.cache.response_cache import ResponseCache
+from wcl_notes.i18n import tr
 
 API_URL = "https://www.warcraftlogs.com/api/v2/client"
 
@@ -107,7 +108,7 @@ class WclClient:
             raise _graphql_error(body["errors"])
         data = body.get("data")
         if not isinstance(data, dict):
-            raise WclApiError("Réponse inattendue de Warcraft Logs (pas de données).")
+            raise WclApiError(tr("Réponse inattendue de Warcraft Logs (pas de données)."))
         return data
 
     def _post(self, payload: dict[str, object]) -> httpx.Response:
@@ -115,7 +116,9 @@ class WclClient:
         try:
             return self._http.post(API_URL, json=payload, headers=headers)
         except httpx.HTTPError as exc:
-            raise WclNetworkError(f"Impossible de joindre Warcraft Logs : {exc}") from exc
+            raise WclNetworkError(
+                tr("Impossible de joindre Warcraft Logs : {error}").format(error=exc)
+            ) from exc
 
 
 def _raise_for_status(response: httpx.Response) -> None:
@@ -124,24 +127,24 @@ def _raise_for_status(response: httpx.Response) -> None:
         return
     if status == 429:
         raise RateLimitError(
-            "Quota horaire de l'API Warcraft Logs dépassé : réessayez dans quelques minutes."
+            tr("Quota horaire de l'API Warcraft Logs dépassé : réessayez dans quelques minutes.")
         )
     if status == 403:
-        raise PrivateReportError("Accès refusé par Warcraft Logs (log privé ?).")
-    raise WclApiError(f"Erreur HTTP {status} renvoyée par Warcraft Logs.")
+        raise PrivateReportError(tr("Accès refusé par Warcraft Logs (log privé ?)."))
+    raise WclApiError(tr("Erreur HTTP {status} renvoyée par Warcraft Logs.").format(status=status))
 
 
 def _graphql_error(errors: list[dict[str, Any]]) -> WclError:
     message = str(errors[0].get("message", "erreur inconnue"))
     lowered = message.lower()
     if "does not exist" in lowered:
-        return ReportNotFoundError("Ce report n'existe pas : vérifiez le code ou l'URL.")
+        return ReportNotFoundError(tr("Ce report n'existe pas : vérifiez le code ou l'URL."))
     if "permission" in lowered or "private" in lowered:
         return PrivateReportError(
-            "Ce report est privé : il n'est pas accessible avec l'API publique."
+            tr("Ce report est privé : il n'est pas accessible avec l'API publique.")
         )
     if "rate limit" in lowered:
         return RateLimitError(
-            "Quota horaire de l'API Warcraft Logs dépassé : réessayez dans quelques minutes."
+            tr("Quota horaire de l'API Warcraft Logs dépassé : réessayez dans quelques minutes.")
         )
-    return WclApiError(f"Warcraft Logs a renvoyé une erreur : {message}")
+    return WclApiError(tr("Warcraft Logs a renvoyé une erreur : {message}").format(message=message))

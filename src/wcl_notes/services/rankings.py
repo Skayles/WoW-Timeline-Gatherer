@@ -6,6 +6,7 @@ from enum import StrEnum
 
 from wcl_notes.domain.models import Actor, Fight, Report
 from wcl_notes.domain.rankings import RankingEntry
+from wcl_notes.i18n import tr
 from wcl_notes.services.report_navigation import NavigationError, players_in_fight
 
 # WCL has no role on specs: healers are known by name (Holy covers Paladin and Priest).
@@ -60,7 +61,9 @@ def find_ranked_player(report: Report, fight: Fight, entry: RankingEntry) -> Act
     same_name = [p for p in players_in_fight(report, fight) if p.name == entry.name]
     if not same_name:
         raise NavigationError(
-            f"{entry.name} introuvable dans le fight #{fight.id} du report {report.code}."
+            tr("{name} introuvable dans le fight #{fight} du report {code}.").format(
+                name=entry.name, fight=fight.id, code=report.code
+            )
         )
     if len(same_name) == 1:
         return same_name[0]
@@ -69,5 +72,7 @@ def find_ranked_player(report: Report, fight: Fight, entry: RankingEntry) -> Act
     if len(same_realm) == 1:
         return same_realm[0]
     raise NavigationError(
-        f"Plusieurs joueurs nommés {entry.name} dans ce fight : impossible de choisir."
+        tr("Plusieurs joueurs nommés {name} dans ce fight : impossible de choisir.").format(
+            name=entry.name
+        )
     )

@@ -8,6 +8,7 @@ from typing import Any
 from PySide6.QtCore import QObject, QRunnable, QThreadPool, Signal, Slot
 
 from wcl_notes.api.errors import WclError
+from wcl_notes.i18n import tr
 from wcl_notes.services.report_navigation import NavigationError
 from wcl_notes.services.report_reference import InvalidReportReferenceError
 
@@ -24,7 +25,7 @@ def error_message(exc: BaseException) -> str:
     if isinstance(exc, USER_FACING_ERRORS):
         return str(exc)
     log.exception("Unexpected error in background task", exc_info=exc)
-    return f"Erreur inattendue : {exc}"
+    return tr("Erreur inattendue : {error}").format(error=exc)
 
 
 class _TaskSignals(QObject):

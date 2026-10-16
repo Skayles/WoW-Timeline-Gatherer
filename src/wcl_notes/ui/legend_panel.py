@@ -12,7 +12,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from wcl_notes.labels import CATEGORY_LABELS, OTHER_CATEGORY_LABEL
+from wcl_notes.i18n import tr
+from wcl_notes.labels import category_label
 from wcl_notes.ui.controller import AppController
 from wcl_notes.ui.icons import IconProvider
 from wcl_notes.ui.style import TEXT_DIM
@@ -30,13 +31,13 @@ class LegendPanel(QWidget):
         self._icons = icons
         self._updating = False
 
-        title = QLabel(self.tr("Sorts"))
+        title = QLabel(tr("Sorts"))
         font = QFont(title.font())
         font.setBold(True)
         title.setFont(font)
-        self.show_all = QCheckBox(self.tr("Tous les casts"))
+        self.show_all = QCheckBox(tr("Tous les casts"))
         self.show_all.setToolTip(
-            self.tr("Lister aussi les sorts absents de la liste de la spé (sorts de rotation…)")
+            tr("Lister aussi les sorts absents de la liste de la spé (sorts de rotation…)")
         )
         self.show_all.toggled.connect(controller.set_show_all)
 
@@ -44,13 +45,13 @@ class LegendPanel(QWidget):
         self.list.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.list.itemChanged.connect(self._on_item_changed)
 
-        self.reset_button = QPushButton(self.tr("Réinitialiser"))
+        self.reset_button = QPushButton(tr("Réinitialiser"))
         self.reset_button.setToolTip(
-            self.tr("Revenir aux sorts par défaut de la spé et oublier vos choix pour ce boss")
+            tr("Revenir aux sorts par défaut de la spé et oublier vos choix pour ce boss")
         )
         self.reset_button.clicked.connect(controller.reset_selection)
         hint = QLabel(
-            self.tr(
+            tr(
                 "Décocher un sort le retire de la timeline et de la note ; vos choix sont "
                 "retenus par boss et par spé. Cliquer sur un cast de la timeline le désactive seul."
             )
@@ -81,7 +82,7 @@ class LegendPanel(QWidget):
         for entry in self._controller.workspace.legend():
             if entry.category != current_category or self.list.count() == 0:
                 current_category = entry.category
-                label = CATEGORY_LABELS[entry.category] if entry.category else OTHER_CATEGORY_LABEL
+                label = category_label(entry.category)
                 header = QListWidgetItem(label)
                 header.setFlags(Qt.ItemFlag.NoItemFlags)
                 font = QFont(header.font())

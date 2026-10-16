@@ -27,6 +27,7 @@ from wcl_notes.domain.models import (
     Role,
     Spell,
 )
+from wcl_notes.i18n import tr
 
 _MAX_PAGES = 200
 _CAST_KINDS = {kind.value: kind for kind in CastKind}
@@ -48,7 +49,7 @@ def fetch_report(client: WclClient, code: str) -> Report:
     data = client.execute("report", {"code": code}, cache=report_cache_rule)
     report = ReportQueryModel.model_validate(data).report_data.report
     if report is None:
-        raise ReportNotFoundError("Ce report n'existe pas : vérifiez le code ou l'URL.")
+        raise ReportNotFoundError(tr("Ce report n'existe pas : vérifiez le code ou l'URL."))
     return report_from_model(report)
 
 
@@ -108,15 +109,17 @@ def _fetch_paginated(
         )
         report = EventsQueryModel.model_validate(data).report_data.report
         if report is None or report.events is None:
-            raise ReportNotFoundError("Ce report n'existe pas : vérifiez le code ou l'URL.")
+            raise ReportNotFoundError(tr("Ce report n'existe pas : vérifiez le code ou l'URL."))
         events.extend(parse_cast_events(report.events.data))
         next_page = report.events.next_page_timestamp
         if next_page is None:
             return events
         if next_page <= start:
-            raise WclApiError("Pagination des événements WCL bloquée (timestamp non croissant).")
+            raise WclApiError(
+                tr("Pagination des événements WCL bloquée (timestamp non croissant).")
+            )
         start = next_page
-    raise WclApiError(f"Trop de pages d'événements (plus de {_MAX_PAGES}).")
+    raise WclApiError(tr("Trop de pages d'événements (plus de {pages}).").format(pages=_MAX_PAGES))
 
 
 def parse_cast_events(raw_events: Iterable[dict[str, Any]]) -> list[CastEvent]:

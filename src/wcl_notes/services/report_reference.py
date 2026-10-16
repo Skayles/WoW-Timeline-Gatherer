@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from typing import Literal
 from urllib.parse import parse_qs, urlsplit
 
+from wcl_notes.i18n import tr
+
 FightSelector = int | Literal["last"]
 
 REPORT_CODE_RE = re.compile(r"^[A-Za-z0-9]{16}$")
@@ -27,23 +29,25 @@ class ReportReference:
 def parse_report_reference(text: str) -> ReportReference:
     raw = text.strip()
     if not raw:
-        raise InvalidReportReferenceError("Collez une URL Warcraft Logs ou un code de report.")
+        raise InvalidReportReferenceError(tr("Collez une URL Warcraft Logs ou un code de report."))
     if REPORT_CODE_RE.match(raw):
         return ReportReference(code=raw)
 
     parts = urlsplit(raw if "://" in raw else f"https://{raw}")
     host = (parts.hostname or "").lower()
     if host != "warcraftlogs.com" and not host.endswith(".warcraftlogs.com"):
-        raise InvalidReportReferenceError(f"Ce n'est ni une URL Warcraft Logs ni un code : {raw}")
+        raise InvalidReportReferenceError(
+            tr("Ce n'est ni une URL Warcraft Logs ni un code : {text}").format(text=raw)
+        )
     if host.split(".", 1)[0] in _CLASSIC_SUBDOMAINS:
-        raise InvalidReportReferenceError("Seuls les logs retail sont pris en charge.")
+        raise InvalidReportReferenceError(tr("Seuls les logs retail sont pris en charge."))
 
     segments = [s for s in parts.path.split("/") if s]
     if len(segments) < 2 or segments[0] != "reports":
-        raise InvalidReportReferenceError(f"URL sans code de report : {raw}")
+        raise InvalidReportReferenceError(tr("URL sans code de report : {url}").format(url=raw))
     code = segments[1]
     if not REPORT_CODE_RE.match(code):
-        raise InvalidReportReferenceError(f"Code de report invalide : {code}")
+        raise InvalidReportReferenceError(tr("Code de report invalide : {code}").format(code=code))
 
     # Older links put fight/source in the fragment, newer ones in the query string.
     params = parse_qs(parts.query) | parse_qs(parts.fragment)
@@ -69,5 +73,7 @@ def _parse_int(value: str | None, key: str) -> int | None:
     if value is None:
         return None
     if not value.isdigit():
-        raise InvalidReportReferenceError(f"Valeur de « {key} » invalide dans l'URL : {value}")
+        raise InvalidReportReferenceError(
+            tr("Valeur de « {key} » invalide dans l'URL : {value}").format(key=key, value=value)
+        )
     return int(value)

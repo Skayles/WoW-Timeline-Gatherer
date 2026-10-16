@@ -29,6 +29,7 @@ from PySide6.QtWidgets import (
 
 from wcl_notes.domain.models import TrackRef
 from wcl_notes.domain.names import character_name
+from wcl_notes.i18n import tr
 from wcl_notes.labels import spec_label
 from wcl_notes.services.notes import NoteFormat, NoteOptions, NoteResult, build_note
 from wcl_notes.services.workspace import TrackEntry
@@ -56,7 +57,7 @@ class CopyNoteDialog(QDialog):
         parent: QWidget | None = None,
     ) -> None:
         super().__init__(parent)
-        self.setWindowTitle(self.tr("Copier la note"))
+        self.setWindowTitle(tr("Copier la note"))
         self.resize(720, 640)
         self._controller = controller
         self._settings = settings
@@ -75,7 +76,7 @@ class CopyNoteDialog(QDialog):
         format_row.addWidget(self.nsrt)
         format_row.addStretch(1)
 
-        self.raid_mode = QCheckBox(self.tr("Note de raid (plusieurs pistes, un nom par piste)"))
+        self.raid_mode = QCheckBox(tr("Note de raid (plusieurs pistes, un nom par piste)"))
         self.raid_mode.setEnabled(len(self._entries) > 1)
 
         self.source = QComboBox()
@@ -86,12 +87,10 @@ class CopyNoteDialog(QDialog):
             if index >= 0:
                 self.source.setCurrentIndex(index)
         self.player_name = QLineEdit(settings.player_name)
-        self.player_name.setPlaceholderText(self.tr("Nom à écrire dans la note"))
+        self.player_name.setPlaceholderText(tr("Nom à écrire dans la note"))
 
         self.raid_table = QTableWidget(len(self._entries), 3)
-        self.raid_table.setHorizontalHeaderLabels(
-            ["", self.tr("Piste source"), self.tr("Nom dans la note")]
-        )
+        self.raid_table.setHorizontalHeaderLabels(["", tr("Piste source"), tr("Nom dans la note")])
         self.raid_table.verticalHeader().setVisible(False)
         self.raid_table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         header = self.raid_table.horizontalHeader()
@@ -114,40 +113,36 @@ class CopyNoteDialog(QDialog):
         self.offset.setDecimals(1)
         self.offset.setSuffix(" s")
         self.offset.setValue(settings.offset_s)
-        self.offset.setToolTip(self.tr("Avancer chaque cast pour être prévenu avant"))
+        self.offset.setToolTip(tr("Avancer chaque cast pour être prévenu avant"))
         self.dur = QSpinBox()
         self.dur.setRange(0, 30)
-        self.dur.setSpecialValueText(self.tr("réglage NSRT"))
+        self.dur.setSpecialValueText(tr("réglage NSRT"))
         self.dur.setSuffix(" s")
         self.dur.setValue(settings.nsrt_dur)
-        self.dur.setToolTip(self.tr("Durée d'affichage du reminder NSRT (dur)"))
+        self.dur.setToolTip(tr("Durée d'affichage du reminder NSRT (dur)"))
         self.merge = QDoubleSpinBox()
         self.merge.setRange(0, 10)
         self.merge.setSingleStep(0.5)
         self.merge.setDecimals(1)
         self.merge.setSuffix(" s")
-        self.merge.setSpecialValueText(self.tr("jamais"))
+        self.merge.setSpecialValueText(tr("jamais"))
         self.merge.setValue(settings.merge_s)
-        self.merge.setToolTip(
-            self.tr("Un même sort relancé dans cet intervalle ne donne qu'une ligne")
-        )
+        self.merge.setToolTip(tr("Un même sort relancé dans cet intervalle ne donne qu'une ligne"))
         self.kill_time = QLineEdit()
-        self.kill_time.setPlaceholderText(self.tr("m:ss, optionnel"))
+        self.kill_time.setPlaceholderText(tr("m:ss, optionnel"))
         self.kill_time.setToolTip(
-            self.tr(
-                "Temps de kill de votre raid, pour être averti si le log source est très différent"
-            )
+            tr("Temps de kill de votre raid, pour être averti si le log source est très différent")
         )
 
         form = QFormLayout()
-        form.addRow(self.tr("Format"), format_row)
+        form.addRow(tr("Format"), format_row)
         form.addRow("", self.raid_mode)
-        form.addRow(self.tr("Piste source"), self.source)
-        form.addRow(self.tr("Player Name"), self.player_name)
-        form.addRow(self.tr("Décalage"), self.offset)
-        form.addRow(self.tr("Durée NSRT"), self.dur)
-        form.addRow(self.tr("Regrouper"), self.merge)
-        form.addRow(self.tr("Mon temps de kill"), self.kill_time)
+        form.addRow(tr("Piste source"), self.source)
+        form.addRow(tr("Player Name"), self.player_name)
+        form.addRow(tr("Décalage"), self.offset)
+        form.addRow(tr("Durée NSRT"), self.dur)
+        form.addRow(tr("Regrouper"), self.merge)
+        form.addRow(tr("Mon temps de kill"), self.kill_time)
 
         self.preview = QPlainTextEdit()
         self.preview.setReadOnly(True)
@@ -160,7 +155,7 @@ class CopyNoteDialog(QDialog):
         self.infos.setWordWrap(True)
         self.infos.setStyleSheet(f"color: {TEXT_DIM};")
         caution = QLabel(
-            self.tr(
+            tr(
                 "⚠ Adaptez la note à votre composition et à votre temps de kill "
                 "avant de l'utiliser."
             )
@@ -168,7 +163,7 @@ class CopyNoteDialog(QDialog):
         caution.setWordWrap(True)
         caution.setStyleSheet(f"color: {WARNING};")
 
-        self.copy_button = QPushButton(self.tr("Copier"))
+        self.copy_button = QPushButton(tr("Copier"))
         self.copy_button.setDefault(True)
         self.copy_button.clicked.connect(self.copy)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
@@ -178,7 +173,7 @@ class CopyNoteDialog(QDialog):
         layout = QVBoxLayout(self)
         layout.addLayout(form)
         layout.addWidget(self.raid_table)
-        layout.addWidget(QLabel(self.tr("Aperçu")))
+        layout.addWidget(QLabel(tr("Aperçu")))
         layout.addWidget(self.preview, 1)
         layout.addWidget(self.infos)
         layout.addWidget(self.warnings)
@@ -215,9 +210,12 @@ class CopyNoteDialog(QDialog):
                 targets.append((entry.ref, text or character_name(entry.track.player.name)))
             return targets
         ref = self.source.currentData()
-        if not isinstance(ref, TrackRef):
+        source = next((e for e in self._entries if e.ref == ref), None)
+        if source is None:
             return []
-        return [(ref, self.player_name.text().strip() or self._settings.player_name)]
+        # Without a name, the note keeps the source player's name.
+        target_name = self.player_name.text().strip() or self._settings.player_name
+        return [(source.ref, target_name or character_name(source.track.player.name))]
 
     def options(self) -> NoteOptions:
         return NoteOptions(
@@ -250,8 +248,8 @@ class CopyNoteDialog(QDialog):
         clipboard = QGuiApplication.clipboard()
         clipboard.setText(self.preview.toPlainText())
         self._remember()
-        self.copy_button.setText(self.tr("Copié ✓"))
-        QTimer.singleShot(1500, lambda: self.copy_button.setText(self.tr("Copier")))
+        self.copy_button.setText(tr("Copié ✓"))
+        QTimer.singleShot(1500, lambda: self.copy_button.setText(tr("Copier")))
 
     def _remember(self) -> None:
         if not self.raid_mode.isChecked() and self.player_name.text().strip():

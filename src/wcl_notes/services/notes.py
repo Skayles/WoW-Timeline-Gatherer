@@ -14,6 +14,7 @@ from wcl_notes.exporters.nsrt import (
     export_nsrt_entries,
     format_nsrt_phase,
 )
+from wcl_notes.i18n import tr
 from wcl_notes.services.data_files import nsrt_mapping
 from wcl_notes.services.phases import nsrt_segments, phase_casts
 from wcl_notes.services.timeline import merge_close_casts
@@ -62,7 +63,7 @@ def build_note(assignments: Sequence[NoteAssignment], options: NoteOptions) -> N
     if not assignments:
         return NoteResult(text="")
     if len({a.track.fight.encounter_id for a in assignments}) > 1:
-        raise ValueError("Une note ne peut couvrir qu'un seul boss.")
+        raise ValueError(tr("Une note ne peut couvrir qu'un seul boss."))
 
     warnings = _kill_time_warnings(assignments, options.my_kill_ms)
     assignments = [
@@ -81,13 +82,19 @@ def build_note(assignments: Sequence[NoteAssignment], options: NoteOptions) -> N
     phased: list[tuple[str, PhasedCast]] = []
     for assignment in assignments:
         segments = nsrt_segments(assignment.track.fight, mapping)
-        label = "Phases NSRT"
-        if len(assignments) > 1:
-            label += f" ({character_name(assignment.track.player.name)})"
         phases = ", ".join(
-            f"{format_nsrt_phase(s.phase)} à {format_mrt_time(s.start_ms)}" for s in segments
+            tr("{phase} à {time}").format(
+                phase=format_nsrt_phase(s.phase), time=format_mrt_time(s.start_ms)
+            )
+            for s in segments
         )
-        infos.append(f"{label} : {phases}")
+        if len(assignments) > 1:
+            info = tr("Phases NSRT ({player}) : {phases}").format(
+                player=character_name(assignment.track.player.name), phases=phases
+            )
+        else:
+            info = tr("Phases NSRT : {phases}").format(phases=phases)
+        infos.append(info)
         phased.extend(
             (assignment.player_name, cast)
             for cast in phase_casts(assignment.casts, segments, offset_ms=options.offset_ms)
@@ -95,7 +102,7 @@ def build_note(assignments: Sequence[NoteAssignment], options: NoteOptions) -> N
     if len(assignments) > 1:
         phased.sort(key=lambda entry: (entry[1].phase, entry[1].time_ms))
     if mapping.status is not MappingStatus.VERIFIED:
-        warnings.append(f"{MAPPING_STATUS_LABELS[mapping.status]} : {mapping.note}")
+        warnings.append(f"{tr(MAPPING_STATUS_LABELS[mapping.status])} : {tr(mapping.note)}")
 
     header = NsrtHeader(
         encounter_id=fight.encounter_id,
@@ -117,9 +124,14 @@ def _kill_time_warnings(assignments: Sequence[NoteAssignment], my_kill_ms: int |
         source_ms = assignment.track.fight.duration_ms
         if abs(source_ms - my_kill_ms) / my_kill_ms > KILL_TIME_TOLERANCE:
             warnings.append(
-                f"Le kill de {character_name(assignment.track.player.name)} dure "
-                f"{_mm_ss(source_ms)} contre {_mm_ss(my_kill_ms)} pour votre raid : "
-                "adaptez les timings."
+                tr(
+                    "Le kill de {player} dure {source} contre {mine} pour votre raid : "
+                    "adaptez les timings."
+                ).format(
+                    player=character_name(assignment.track.player.name),
+                    source=_mm_ss(source_ms),
+                    mine=_mm_ss(my_kill_ms),
+                )
             )
     return warnings
 

@@ -6,6 +6,7 @@ from dataclasses import dataclass
 
 from wcl_notes.domain.models import Actor, Cast, PhaseInfo, Spell, Track, TrackRef
 from wcl_notes.domain.spells import SpecSpells, SpellCategory, SpellPreset
+from wcl_notes.i18n import tr
 from wcl_notes.services.data_files import load_spec_spells
 from wcl_notes.services.notes import NoteAssignment
 from wcl_notes.services.presets import apply_preset
@@ -103,8 +104,10 @@ class Workspace:
         """Add a track; its spells are pre-selected from ``preset``, else the spec defaults."""
         if not self.accepts(track.fight.encounter_id):
             raise DifferentEncounterError(
-                f"La timeline contient déjà un autre boss que {track.fight.name} : "
-                "videz-la avant d'ajouter cette piste."
+                tr(
+                    "La timeline contient déjà un autre boss que {boss} : "
+                    "videz-la avant d'ajouter cette piste."
+                ).format(boss=track.fight.name)
             )
         existing = self.entry(track.ref)
         if existing is not None:

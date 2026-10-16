@@ -21,6 +21,8 @@ from wcl_notes.services.timeline import build_casts
 
 # UI tests never open real windows.
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
+# Tests check French texts (the source language) whatever the system language is.
+os.environ["WCL_NOTES_LANG"] = "fr"
 
 FIXTURES = Path(__file__).parent / "fixtures"
 GOLDEN = Path(__file__).parent / "golden"

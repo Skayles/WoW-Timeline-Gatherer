@@ -80,7 +80,7 @@ def load_encounters() -> dict[int, EncounterInfo]:
     for file in _yaml_files("encounters"):
         model = _EncounterFileModel.model_validate(_load_yaml(file))
         if model.encounter_id in encounters:
-            raise ValueError(f"encounter_id {model.encounter_id} en double ({file.name})")
+            raise ValueError(f"Duplicate encounter_id {model.encounter_id} ({file.name})")
         encounters[model.encounter_id] = EncounterInfo(
             encounter_id=model.encounter_id,
             name=model.name,

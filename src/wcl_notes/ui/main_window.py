@@ -14,6 +14,7 @@ from PySide6.QtWidgets import (
 
 from wcl_notes import __version__
 from wcl_notes.cache.response_cache import ResponseCache
+from wcl_notes.i18n import tr
 from wcl_notes.ui.controller import AppController
 from wcl_notes.ui.copy_note_dialog import CopyNoteDialog
 from wcl_notes.ui.icons import IconProvider
@@ -42,7 +43,7 @@ class MainWindow(QMainWindow):
     ) -> None:
         super().__init__(parent)
         self._cache = cache
-        self.setWindowTitle(self.tr("WoW Timeline Gatherer {version}").format(version=__version__))
+        self.setWindowTitle(tr("WoW Timeline Gatherer {version}").format(version=__version__))
         self.resize(1500, 860)
         self._controller = controller
         self._settings = settings
@@ -51,9 +52,9 @@ class MainWindow(QMainWindow):
         self.log_panel = LogPanel(controller, settings)
         self.tracks_panel = TracksPanel(controller)
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.rankings_panel, self.tr("Classements"))
-        self.tabs.addTab(self.log_panel, self.tr("Log"))
-        self.tabs.addTab(self.tracks_panel, self.tr("Pistes"))
+        self.tabs.addTab(self.rankings_panel, tr("Classements"))
+        self.tabs.addTab(self.log_panel, tr("Log"))
+        self.tabs.addTab(self.tracks_panel, tr("Pistes"))
         self.tabs.setCurrentIndex(LOG_TAB)
 
         self.timeline = TimelineView(controller, icons)
@@ -66,18 +67,18 @@ class MainWindow(QMainWindow):
         splitter.setSizes([400, 850, 250])
         self.setCentralWidget(splitter)
 
-        self.copy_action = QAction(self.tr("Copier la note…"), self)
+        self.copy_action = QAction(tr("Copier la note…"), self)
         self.copy_action.setShortcut(QKeySequence("Ctrl+Shift+C"))
         self.copy_action.triggered.connect(self.open_copy_note)
-        settings_action = QAction(self.tr("Réglages…"), self)
+        settings_action = QAction(tr("Réglages…"), self)
         settings_action.triggered.connect(self.open_settings)
-        zoom_in = QAction(self.tr("Zoom +"), self)
+        zoom_in = QAction(tr("Zoom +"), self)
         zoom_in.setShortcut(QKeySequence.StandardKey.ZoomIn)
         zoom_in.triggered.connect(self.timeline.zoom_in)
-        zoom_out = QAction(self.tr("Zoom -"), self)
+        zoom_out = QAction(tr("Zoom -"), self)
         zoom_out.setShortcut(QKeySequence.StandardKey.ZoomOut)
         zoom_out.triggered.connect(self.timeline.zoom_out)
-        toolbar = QToolBar(self.tr("Actions"))
+        toolbar = QToolBar(tr("Actions"))
         toolbar.setMovable(False)
         toolbar.addAction(self.copy_action)
         toolbar.addSeparator()
@@ -93,7 +94,7 @@ class MainWindow(QMainWindow):
         self.busy.setVisible(False)
         self.statusBar().addPermanentWidget(self.busy)
         self.statusBar().showMessage(
-            self.tr("Collez une URL Warcraft Logs dans l'onglet Log pour commencer.")
+            tr("Collez une URL Warcraft Logs dans l'onglet Log pour commencer.")
         )
 
         runner.busy_changed.connect(self.busy.setVisible)
@@ -107,7 +108,7 @@ class MainWindow(QMainWindow):
 
     def show_error(self, message: str) -> None:
         self.statusBar().showMessage(message, 10000)
-        QMessageBox.warning(self, self.tr("Warcraft Logs"), message)
+        QMessageBox.warning(self, tr("Warcraft Logs"), message)
 
     def open_copy_note(self) -> None:
         if not self._controller.workspace.entries:
@@ -117,8 +118,8 @@ class MainWindow(QMainWindow):
     def ask_for_credentials(self) -> None:
         QMessageBox.information(
             self,
-            self.tr("Bienvenue"),
-            self.tr(
+            tr("Bienvenue"),
+            tr(
                 "Pour lire les logs, l'application a besoin d'un client API Warcraft Logs "
                 "(Client ID et Client Secret, à créer sur warcraftlogs.com/api/clients). "
                 "Renseignez-les dans les réglages qui vont s'ouvrir."
@@ -130,4 +131,4 @@ class MainWindow(QMainWindow):
         dialog = SettingsDialog(self._settings, self, cache=self._cache)
         if dialog.exec() and dialog.credentials_changed:
             self._controller.reset_client()
-            self.statusBar().showMessage(self.tr("Identifiants enregistrés."), 5000)
+            self.statusBar().showMessage(tr("Identifiants enregistrés."), 5000)

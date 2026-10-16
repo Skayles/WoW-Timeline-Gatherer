@@ -1,6 +1,7 @@
 """Find fights and players inside a loaded report."""
 
 from wcl_notes.domain.models import Actor, Difficulty, Fight, Report
+from wcl_notes.i18n import tr
 from wcl_notes.services.report_reference import FightSelector
 
 _RAID_DIFFICULTIES = frozenset(d.value for d in Difficulty)
@@ -21,13 +22,19 @@ def boss_fights(report: Report, *, kills_only: bool = False) -> list[Fight]:
 
 def resolve_fight(report: Report, selector: FightSelector) -> Fight:
     if not report.fights:
-        raise NavigationError(f"Le report {report.code} ne contient aucun fight.")
+        raise NavigationError(
+            tr("Le report {code} ne contient aucun fight.").format(code=report.code)
+        )
     if selector == "last":
         return max(report.fights, key=lambda f: f.id)
     for fight in report.fights:
         if fight.id == selector:
             return fight
-    raise NavigationError(f"Fight #{selector} introuvable dans le report {report.code}.")
+    raise NavigationError(
+        tr("Fight #{fight} introuvable dans le report {code}.").format(
+            fight=selector, code=report.code
+        )
+    )
 
 
 def players_in_fight(report: Report, fight: Fight) -> list[Actor]:
@@ -47,7 +54,7 @@ def find_player(players: list[Actor], query: str | int) -> Actor:
         for actor in players:
             if actor.id == actor_id:
                 return actor
-        raise NavigationError(f"Aucun joueur avec l'ID {actor_id} dans ce fight.")
+        raise NavigationError(tr("Aucun joueur avec l'ID {id} dans ce fight.").format(id=actor_id))
 
     name = query.strip()
     for actor in players:
@@ -56,7 +63,7 @@ def find_player(players: list[Actor], query: str | int) -> Actor:
     matches = [a for a in players if a.name.casefold() == name.casefold()]
     if len(matches) == 1:
         return matches[0]
-    raise NavigationError(f"Joueur « {name} » introuvable dans ce fight.")
+    raise NavigationError(tr("Joueur « {name} » introuvable dans ce fight.").format(name=name))
 
 
 def pet_ids(fight: Fight, owner_id: int) -> list[int]:

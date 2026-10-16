@@ -32,6 +32,7 @@ from PySide6.QtWidgets import (
 from wcl_notes.domain.models import Cast, TrackRef
 from wcl_notes.exporters.mrt import format_mrt_time
 from wcl_notes.exporters.nsrt import format_nsrt_phase, format_nsrt_time
+from wcl_notes.i18n import tr
 from wcl_notes.labels import format_duration, spec_label
 from wcl_notes.services.data_files import nsrt_mapping
 from wcl_notes.services.phases import PhaseSegment, nsrt_segments
@@ -208,7 +209,7 @@ class TimelineView(QGraphicsView):
 
     def _draw_empty(self) -> None:
         text = self._scene.addSimpleText(
-            self.tr("Ajoutez des joueurs depuis l'onglet Log pour remplir la timeline.")
+            tr("Ajoutez des joueurs depuis l'onglet Log pour remplir la timeline.")
         )
         text.setBrush(QBrush(QColor(TEXT_DIM)))
         self._scene.setSceneRect(QRectF(-20, -20, 600, 100))
@@ -301,7 +302,7 @@ class TimelineView(QGraphicsView):
             label.setFont(_small_font())
             label.setPos(self._x(start) + 3, top + 1)
             name = info.name if info else f"Phase {transition.phase_id}"
-            label.setToolTip(self.tr("WCL : {name}").format(name=name))
+            label.setToolTip(tr("WCL : {name}").format(name=name))
             label.setZValue(1)
 
     def _draw_nsrt_phases(self, segments: tuple[PhaseSegment, ...], top: float) -> None:
@@ -331,16 +332,12 @@ class TimelineView(QGraphicsView):
         segment = next(
             (s for s in reversed(segments) if s.start_ms <= max(cast.time_ms, 0)), segments[0]
         )
-        action = (
-            self.tr("Clic : réactiver ce cast")
-            if disabled
-            else self.tr("Clic : désactiver ce cast")
-        )
+        action = tr("Clic : réactiver ce cast") if disabled else tr("Clic : désactiver ce cast")
         return "\n".join(
             [
                 spell_name,
-                self.tr("{time} depuis le pull").format(time=format_mrt_time(cast.time_ms)),
-                self.tr("NSRT : ph {phase}, {time} s").format(
+                tr("{time} depuis le pull").format(time=format_mrt_time(cast.time_ms)),
+                tr("NSRT : ph {phase}, {time} s").format(
                     phase=format_nsrt_phase(segment.phase),
                     time=format_nsrt_time(cast.time_ms - segment.start_ms),
                 ),

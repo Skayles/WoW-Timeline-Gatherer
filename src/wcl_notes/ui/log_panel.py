@@ -18,12 +18,13 @@ from PySide6.QtWidgets import (
 )
 
 from wcl_notes.domain.models import Actor, Fight, Report, Role, TrackRef
+from wcl_notes.i18n import tr
 from wcl_notes.labels import (
-    ROLE_LABELS,
     difficulty_label,
     fight_label,
     format_duration,
     outcome_label,
+    role_label,
     spec_label,
 )
 from wcl_notes.services.report_navigation import (
@@ -63,38 +64,36 @@ class LogPanel(QWidget):
         self.input.setInsertPolicy(QComboBox.InsertPolicy.NoInsert)
         line_edit = self.input.lineEdit()
         assert line_edit is not None
-        line_edit.setPlaceholderText(self.tr("URL Warcraft Logs ou code du report"))
+        line_edit.setPlaceholderText(tr("URL Warcraft Logs ou code du report"))
         line_edit.returnPressed.connect(self.load)
         self.input.activated.connect(self._on_history_activated)
-        self.load_button = QPushButton(self.tr("Charger"))
+        self.load_button = QPushButton(tr("Charger"))
         self.load_button.clicked.connect(self.load)
 
-        self.report_label = QLabel(self.tr("Aucun report chargé."))
+        self.report_label = QLabel(tr("Aucun report chargé."))
         self.report_label.setWordWrap(True)
-        self.kills_only = QCheckBox(self.tr("Kills seulement"))
+        self.kills_only = QCheckBox(tr("Kills seulement"))
         self.kills_only.setChecked(True)
         self.kills_only.toggled.connect(self._populate_fights)
 
         self.fights = QTreeWidget()
-        self.fights.setHeaderLabels(
-            [self.tr("Fight"), self.tr("Difficulté"), self.tr("Résultat"), self.tr("Durée")]
-        )
+        self.fights.setHeaderLabels([tr("Fight"), tr("Difficulté"), tr("Résultat"), tr("Durée")])
         self.fights.setRootIsDecorated(True)
         self.fights.currentItemChanged.connect(self._on_fight_selected)
 
-        self.players_label = QLabel(self.tr("Choisissez un fight."))
+        self.players_label = QLabel(tr("Choisissez un fight."))
         self.players_label.setWordWrap(True)
         self.search = QLineEdit()
-        self.search.setPlaceholderText(self.tr("Rechercher un joueur"))
+        self.search.setPlaceholderText(tr("Rechercher un joueur"))
         self.search.setClearButtonEnabled(True)
         self.search.textChanged.connect(self._apply_search)
-        self.my_spec_button = QPushButton(self.tr("Cocher ma spé"))
+        self.my_spec_button = QPushButton(tr("Cocher ma spé"))
         self.my_spec_button.clicked.connect(self._check_my_spec)
-        self.me_button = QPushButton(self.tr("Me cocher"))
+        self.me_button = QPushButton(tr("Me cocher"))
         self.me_button.clicked.connect(self._check_me)
 
         self.players = QTreeWidget()
-        self.players.setHeaderLabels([self.tr("Joueur"), self.tr("Spé"), self.tr("État")])
+        self.players.setHeaderLabels([tr("Joueur"), tr("Spé"), tr("État")])
         self.players.itemChanged.connect(self._on_player_changed)
 
         top = QWidget()
@@ -164,7 +163,7 @@ class LogPanel(QWidget):
         self.input.setEditText(report.code)
         boss_count = len(boss_fights(report))
         self.report_label.setText(
-            self.tr("{title} ({code}) — {count} pull(s) de boss").format(
+            tr("{title} ({code}) — {count} pull(s) de boss").format(
                 title=report.title, code=report.code, count=boss_count
             )
         )
@@ -181,7 +180,7 @@ class LogPanel(QWidget):
         if selected is not None:
             self._select_fight(selected.id)
         else:
-            self._clear_players(self.tr("Choisissez un fight."))
+            self._clear_players(tr("Choisissez un fight."))
 
     def _populate_fights(self) -> None:
         self.fights.clear()
@@ -192,7 +191,7 @@ class LogPanel(QWidget):
             groups.setdefault(fight.name, []).append(fight)
         for name, fights in groups.items():
             kills = sum(1 for f in fights if f.kill)
-            boss = QTreeWidgetItem([name, "", self.tr("{n} kill(s)").format(n=kills), ""])
+            boss = QTreeWidgetItem([name, "", tr("{n} kill(s)").format(n=kills), ""])
             boss.setFlags(Qt.ItemFlag.ItemIsEnabled)
             font = QFont(boss.font(0))
             font.setBold(True)
@@ -259,12 +258,12 @@ class LogPanel(QWidget):
         groups: dict[str, list[Actor]] = {}
         if roles:
             for role in (Role.TANK, Role.HEALER, Role.DPS):
-                groups[ROLE_LABELS[role]] = [p for p in players if roles.get(p.id) is role]
+                groups[role_label(role)] = [p for p in players if roles.get(p.id) is role]
             others = [p for p in players if p.id not in roles]
             if others:
-                groups[self.tr("Autres")] = others
+                groups[tr("Autres")] = others
         else:
-            groups[self.tr("Joueurs")] = players
+            groups[tr("Joueurs")] = players
 
         self._updating = True
         self.players.clear()
@@ -297,7 +296,7 @@ class LogPanel(QWidget):
         state = self._controller.track_state(TrackRef(self._report.code, self._fight.id, actor_id))
         checked = state in (TrackState.LOADING, TrackState.LOADED)
         item.setCheckState(0, Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
-        item.setText(2, STATE_LABELS.get(state or "", ""))
+        item.setText(2, tr(STATE_LABELS.get(state or "", "")))
         item.setForeground(2, QBrush(QColor(ERROR if state == TrackState.ERROR else TEXT_DIM)))
 
     def _player_items(self) -> list[QTreeWidgetItem]:
@@ -348,8 +347,8 @@ class LogPanel(QWidget):
         if not self._controller.workspace.accepts(fight.encounter_id):
             answer = QMessageBox.question(
                 self,
-                self.tr("Autre boss"),
-                self.tr(
+                tr("Autre boss"),
+                tr(
                     "La timeline contient des pistes d'un autre boss. "
                     "La vider pour ajouter {boss} ?"
                 ).format(boss=fight.name),
@@ -370,16 +369,24 @@ class LogPanel(QWidget):
         if self._report is None or self._fight is None:
             return
         my_spec = self._settings.my_spec
+        if not my_spec:
+            self._controller.message.emit(
+                tr("Renseignez votre spé dans Réglages (ex. Rogue-Assassination).")
+            )
+            return
         matches = [p for p in players_in_fight(self._report, self._fight) if p.icon == my_spec]
         if not matches:
             self._controller.message.emit(
-                self.tr("Aucun joueur {spec} dans ce fight.").format(spec=my_spec)
+                tr("Aucun joueur {spec} dans ce fight.").format(spec=my_spec)
             )
         for player in matches:
             self._set_checked(player.id, True)
 
     def _check_me(self) -> None:
         if self._report is None or self._fight is None:
+            return
+        if not self._settings.player_name:
+            self._controller.message.emit(tr("Renseignez votre nom de personnage dans Réglages."))
             return
         try:
             me = find_player(

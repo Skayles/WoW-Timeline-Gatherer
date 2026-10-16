@@ -31,11 +31,11 @@ def icon_url(name: str, kind: IconKind = IconKind.ABILITY) -> str:
 
 def download_icon(name: str, kind: IconKind = IconKind.ABILITY, *, timeout: float = 15.0) -> bytes:
     if not is_safe_icon_name(name):
-        raise ValueError(f"Nom d'icône invalide : {name!r}")
+        raise ValueError(f"Invalid icon name: {name!r}")
     try:
         response = httpx.get(icon_url(name, kind), timeout=timeout, follow_redirects=True)
     except httpx.HTTPError as exc:
-        raise WclNetworkError(f"Icône {name} indisponible : {exc}") from exc
+        raise WclNetworkError(f"Icon {name} unavailable: {exc}") from exc
     if response.status_code != 200:
-        raise WclNetworkError(f"Icône {name} indisponible (HTTP {response.status_code}).")
+        raise WclNetworkError(f"Icon {name} unavailable (HTTP {response.status_code}).")
     return response.content

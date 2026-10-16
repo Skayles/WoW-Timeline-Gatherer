@@ -21,6 +21,7 @@ from PySide6.QtWidgets import (
 
 from wcl_notes.domain.models import Difficulty
 from wcl_notes.domain.rankings import GameCatalog, RankingEntry, RankingQuery, RankingsPage
+from wcl_notes.i18n import tr
 from wcl_notes.labels import difficulty_label, format_duration
 from wcl_notes.services.rankings import (
     METRICS,
@@ -76,13 +77,13 @@ class RankingsPanel(QWidget):
             self.difficulty.addItem(difficulty_label(difficulty), int(difficulty))
         self.region = QComboBox()
         for region in REGIONS:
-            self.region.addItem(region or self.tr("Toutes"), region)
+            self.region.addItem(region or tr("Toutes"), region)
         self.game_class = QComboBox()
         self.spec = QComboBox()
         self.metric_box = QComboBox()
         for metric in METRICS:
             self.metric_box.addItem(metric.upper(), metric)
-        self.search_button = QPushButton(self.tr("Rechercher"))
+        self.search_button = QPushButton(tr("Rechercher"))
         self.search_button.clicked.connect(self.search)
 
         self.raid.currentIndexChanged.connect(self._fill_bosses)
@@ -90,22 +91,22 @@ class RankingsPanel(QWidget):
         self.spec.currentIndexChanged.connect(self._on_spec_changed)
 
         filters = QFormLayout()
-        filters.addRow(self.tr("Raid"), self.raid)
-        filters.addRow(self.tr("Boss"), self.boss)
+        filters.addRow(tr("Raid"), self.raid)
+        filters.addRow(tr("Boss"), self.boss)
         row = QHBoxLayout()
         row.addWidget(self.difficulty, 1)
-        row.addWidget(QLabel(self.tr("Région")))
+        row.addWidget(QLabel(tr("Région")))
         row.addWidget(self.region)
-        filters.addRow(self.tr("Difficulté"), row)
+        filters.addRow(tr("Difficulté"), row)
         spec_row = QHBoxLayout()
         spec_row.addWidget(self.game_class, 1)
         spec_row.addWidget(self.spec, 1)
-        filters.addRow(self.tr("Classe / spé"), spec_row)
+        filters.addRow(tr("Classe / spé"), spec_row)
         metric_row = QHBoxLayout()
         metric_row.addWidget(self.metric_box)
         metric_row.addStretch(1)
         metric_row.addWidget(self.search_button)
-        filters.addRow(self.tr("Métrique"), metric_row)
+        filters.addRow(tr("Métrique"), metric_row)
 
         self.min_kill = QLineEdit()
         self.min_kill.setPlaceholderText("m:ss")
@@ -115,31 +116,31 @@ class RankingsPanel(QWidget):
             edit.setMaximumWidth(70)
             edit.textChanged.connect(self.refresh)
         self.name_filter = QLineEdit()
-        self.name_filter.setPlaceholderText(self.tr("Nom"))
+        self.name_filter.setPlaceholderText(tr("Nom"))
         self.name_filter.setClearButtonEnabled(True)
         self.name_filter.textChanged.connect(self.refresh)
         self.sort = QComboBox()
         for key, label in SORT_LABELS.items():
-            self.sort.addItem(self.tr(label), key.value)
+            self.sort.addItem(tr(label), key.value)
         self.sort.currentIndexChanged.connect(self.refresh)
         local = QHBoxLayout()
-        local.addWidget(QLabel(self.tr("Kill de")))
+        local.addWidget(QLabel(tr("Kill de")))
         local.addWidget(self.min_kill)
-        local.addWidget(QLabel(self.tr("à")))
+        local.addWidget(QLabel(tr("à")))
         local.addWidget(self.max_kill)
         local.addWidget(self.name_filter, 1)
-        local.addWidget(QLabel(self.tr("Tri")))
+        local.addWidget(QLabel(tr("Tri")))
         local.addWidget(self.sort)
 
         self.table = QTreeWidget()
-        self.table.setHeaderLabels([self.tr(c) for c in COLUMNS])
+        self.table.setHeaderLabels([tr(c) for c in COLUMNS])
         self.table.setRootIsDecorated(False)
         self.table.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.table.itemChanged.connect(self._on_item_changed)
-        self.status = QLabel(self.tr("Choisissez un boss et une spé, puis Rechercher."))
+        self.status = QLabel(tr("Choisissez un boss et une spé, puis Rechercher."))
         self.status.setWordWrap(True)
         self.status.setStyleSheet(f"color: {TEXT_DIM};")
-        self.more_button = QPushButton(self.tr("Page suivante"))
+        self.more_button = QPushButton(tr("Page suivante"))
         self.more_button.clicked.connect(self.load_more)
         self.more_button.setEnabled(False)
 
@@ -169,14 +170,14 @@ class RankingsPanel(QWidget):
         if self._catalog_requested:
             return
         self._catalog_requested = True
-        self.status.setText(self.tr("Chargement des raids et des spés…"))
+        self.status.setText(tr("Chargement des raids et des spés…"))
         self._controller.load_catalog()
 
     def _on_catalog(self, catalog: GameCatalog) -> None:
         self._updating = True
         self.raid.clear()
         for zone in catalog.raids:
-            label = zone.name if not zone.frozen else f"{zone.name} ({self.tr('ancien')})"
+            label = zone.name if not zone.frozen else f"{zone.name} ({tr('ancien')})"
             self.raid.addItem(label, zone.id)
         self.game_class.clear()
         for game_class in catalog.classes:
@@ -191,7 +192,7 @@ class RankingsPanel(QWidget):
         if spec_index >= 0:
             self.spec.setCurrentIndex(spec_index)
         self._set_search_enabled(bool(catalog.raids))
-        self.status.setText(self.tr("Choisissez un boss et une spé, puis Rechercher."))
+        self.status.setText(tr("Choisissez un boss et une spé, puis Rechercher."))
 
     def _fill_bosses(self) -> None:
         catalog = self._controller.catalog
@@ -283,7 +284,7 @@ class RankingsPanel(QWidget):
         self.table.clear()
         header = self.table.headerItem()
         if header is not None:
-            header.setText(2, self._query.metric.upper() if self._query else self.tr("Montant"))
+            header.setText(2, self._query.metric.upper() if self._query else tr("Montant"))
         for entry in entries:
             server = f"{entry.server}-{entry.region}" if entry.server else (entry.region or "")
             item = QTreeWidgetItem(
@@ -292,7 +293,7 @@ class RankingsPanel(QWidget):
                     f"{entry.name}  ·  {server}",
                     format_amount(entry.amount),
                     format_duration(entry.duration_ms),
-                    datetime.fromtimestamp(entry.start_time / 1000).strftime("%d/%m/%Y"),
+                    datetime.fromtimestamp(entry.start_time / 1000).strftime(tr("%d/%m/%Y")),
                     "",
                 ]
             )
@@ -310,18 +311,18 @@ class RankingsPanel(QWidget):
         self._updating = False
         total = len(self._entries)
         self.status.setText(
-            self.tr("{shown} classements affichés sur {total} chargés.").format(
+            tr("{shown} classements affichés sur {total} chargés.").format(
                 shown=len(entries), total=total
             )
             if total
-            else self.tr("Aucun classement pour ces critères.")
+            else tr("Aucun classement pour ces critères.")
         )
 
     def _apply_state(self, item: QTreeWidgetItem, entry: RankingEntry) -> None:
         state = self._controller.ranked_track_state(entry)
         checked = state in (TrackState.LOADING, TrackState.LOADED)
         item.setCheckState(0, Qt.CheckState.Checked if checked else Qt.CheckState.Unchecked)
-        item.setText(5, STATE_LABELS.get(state or "", ""))
+        item.setText(5, tr(STATE_LABELS.get(state or "", "")))
         item.setForeground(5, QBrush(QColor(ERROR if state == TrackState.ERROR else TEXT_DIM)))
 
     def _items(self) -> list[QTreeWidgetItem]:
@@ -362,8 +363,8 @@ class RankingsPanel(QWidget):
         if not self._controller.workspace.accepts(encounter_id):
             answer = QMessageBox.question(
                 self,
-                self.tr("Autre boss"),
-                self.tr("La timeline contient des pistes d'un autre boss. La vider ?"),
+                tr("Autre boss"),
+                tr("La timeline contient des pistes d'un autre boss. La vider ?"),
             )
             if answer != QMessageBox.StandardButton.Yes:
                 self._refresh_states()

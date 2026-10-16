@@ -16,6 +16,7 @@ from wcl_notes.domain.rankings import (
     RankingQuery,
     RankingsPage,
 )
+from wcl_notes.i18n import tr
 
 MYTHIC_PLUS_DIFFICULTY = 10
 RANKINGS_PER_PAGE = 100
@@ -60,7 +61,7 @@ def fetch_catalog(client: WclClient) -> GameCatalog:
     expansions = ((data.get("worldData") or {}).get("expansions")) or []
     ids = [e["id"] for e in expansions if isinstance(e, dict) and isinstance(e.get("id"), int)]
     if not ids:
-        raise WclApiError("Warcraft Logs n'a renvoyé aucune extension.")
+        raise WclApiError(tr("Warcraft Logs n'a renvoyé aucune extension."))
     zones = client.execute("raid_zones", {"expansionID": max(ids)}, cache=CATALOG_CACHE)
     raids = parse_raid_zones(((zones.get("worldData") or {}).get("zones")) or [])
     return GameCatalog(classes=classes, raids=raids)
@@ -129,7 +130,9 @@ def fetch_rankings(client: WclClient, query: RankingQuery) -> RankingsPage:
     )
     encounter = (data.get("worldData") or {}).get("encounter")
     if not isinstance(encounter, dict):
-        raise WclApiError(f"Boss {query.encounter_id} inconnu de Warcraft Logs.")
+        raise WclApiError(
+            tr("Boss {boss} inconnu de Warcraft Logs.").format(boss=query.encounter_id)
+        )
     return parse_rankings(encounter.get("characterRankings"), query)
 
 

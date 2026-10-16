@@ -12,6 +12,7 @@ from wcl_notes.api.rankings import fetch_catalog, fetch_rankings
 from wcl_notes.api.reports import fetch_player_casts, fetch_player_roles, fetch_report
 from wcl_notes.domain.models import Actor, Cast, Fight, Report, Role, Track, TrackRef
 from wcl_notes.domain.rankings import GameCatalog, RankingEntry, RankingQuery, RankingsPage
+from wcl_notes.i18n import tr
 from wcl_notes.services.presets import PresetStore, merge_preset, preset_key, seen_spells
 from wcl_notes.services.rankings import find_ranked_player
 from wcl_notes.services.report_navigation import resolve_fight
@@ -110,10 +111,12 @@ class AppController(QObject):
         def loaded(report: object) -> None:
             assert isinstance(report, Report)
             self._reports[report.code] = report
-            self.message.emit(f"Report {report.code} chargé : {report.title}")
+            self.message.emit(
+                tr("Report {code} chargé : {title}").format(code=report.code, title=report.title)
+            )
             self.report_loaded.emit(report, ref)
 
-        self.message.emit(f"Chargement du report {ref.code}…")
+        self.message.emit(tr("Chargement du report {code}…").format(code=ref.code))
         self._runner.run(lambda: fetch_report(self.client(), ref.code), loaded, self.error.emit)
 
     def roles(self, report: Report, fight: Fight) -> dict[int, Role] | None:
@@ -134,7 +137,7 @@ class AppController(QObject):
             # Roles only group the list: fall back to an ungrouped list.
             self._roles[key] = {}
             self.roles_loaded.emit(report.code, fight.id, {})
-            self.message.emit(f"Rôles indisponibles : {message}")
+            self.message.emit(tr("Rôles indisponibles : {error}").format(error=message))
 
         self._runner.run(
             lambda: fetch_player_roles(self.client(), report.code, fight), loaded, failed
@@ -158,7 +161,9 @@ class AppController(QObject):
             return
         if not self.workspace.accepts(fight.encounter_id):
             self.error.emit(
-                f"La timeline contient déjà un autre boss que {fight.name} : videz-la d'abord."
+                tr("La timeline contient déjà un autre boss que {boss} : videz-la d'abord.").format(
+                    boss=fight.name
+                )
             )
             self.track_state_changed.emit(ref, TrackState.REMOVED)
             return
@@ -210,8 +215,10 @@ class AppController(QObject):
         self.workspace_changed.emit()
         if len(self.workspace.entries) > COMFORTABLE_TRACK_COUNT:
             self.message.emit(
-                f"Plus de {COMFORTABLE_TRACK_COUNT} pistes : la timeline devient chargée "
-                "et chaque piste consomme du quota API."
+                tr(
+                    "Plus de {n} pistes : la timeline devient chargée "
+                    "et chaque piste consomme du quota API."
+                ).format(n=COMFORTABLE_TRACK_COUNT)
             )
         return True
 
@@ -310,10 +317,14 @@ class AppController(QObject):
 
         def loaded(page: object) -> None:
             assert isinstance(page, RankingsPage)
-            self.message.emit(f"{len(page.entries)} classements chargés (page {query.page}).")
+            self.message.emit(
+                tr("{n} classements chargés (page {page}).").format(
+                    n=len(page.entries), page=query.page
+                )
+            )
             self.rankings_loaded.emit(page)
 
-        self.message.emit("Chargement des classements…")
+        self.message.emit(tr("Chargement des classements…"))
         self._runner.run(lambda: fetch_rankings(self.client(), query), loaded, self.error.emit)
 
     def ranked_track_state(self, entry: RankingEntry) -> str | None:
@@ -333,7 +344,7 @@ class AppController(QObject):
         if self.ranked_track_state(entry) in (TrackState.LOADING, TrackState.LOADED):
             return
         if not self.workspace.accepts(encounter_id):
-            self.error.emit("La timeline contient déjà un autre boss : videz-la d'abord.")
+            self.error.emit(tr("La timeline contient déjà un autre boss : videz-la d'abord."))
             self.ranking_state_changed.emit(key)
             return
         self._ranked_loading.add(key)
@@ -360,7 +371,9 @@ class AppController(QObject):
                 self._ranked_cancelled.discard(key)
             else:
                 self._ranked_refs[key] = track.ref
-                self._add_loaded_track(report, track, f"Classement #{entry.rank}")
+                self._add_loaded_track(
+                    report, track, tr("Classement #{rank}").format(rank=entry.rank)
+                )
             self.ranking_state_changed.emit(key)
 
         def failed(message: str) -> None:

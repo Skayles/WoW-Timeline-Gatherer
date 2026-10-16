@@ -8,6 +8,7 @@ import keyring
 from keyring.errors import KeyringError
 
 from wcl_notes.api.errors import MissingCredentialsError
+from wcl_notes.i18n import tr
 
 ENV_CLIENT_ID = "WCL_CLIENT_ID"
 ENV_CLIENT_SECRET = "WCL_CLIENT_SECRET"
@@ -55,8 +56,10 @@ def load_credentials(env_file: Path | None = Path(".env")) -> Credentials:
         return Credentials(stored_id, stored_secret)
 
     raise MissingCredentialsError(
-        "Identifiants Warcraft Logs introuvables : renseignez-les dans Réglages "
-        "(ou WCL_CLIENT_ID et WCL_CLIENT_SECRET dans un fichier .env)."
+        tr(
+            "Identifiants Warcraft Logs introuvables : renseignez-les dans Réglages "
+            "(ou WCL_CLIENT_ID et WCL_CLIENT_SECRET dans un fichier .env)."
+        )
     )
 
 

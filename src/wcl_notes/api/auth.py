@@ -8,6 +8,7 @@ import httpx
 
 from wcl_notes.api.credentials import Credentials
 from wcl_notes.api.errors import AuthenticationError, WclApiError, WclNetworkError
+from wcl_notes.i18n import tr
 
 TOKEN_URL = "https://www.warcraftlogs.com/oauth/token"
 _EXPIRY_MARGIN_S = 60.0
@@ -48,14 +49,21 @@ class TokenProvider:
                 auth=(self._credentials.client_id, self._credentials.client_secret),
             )
         except httpx.HTTPError as exc:
-            raise WclNetworkError(f"Impossible de joindre Warcraft Logs : {exc}") from exc
+            raise WclNetworkError(
+                tr("Impossible de joindre Warcraft Logs : {error}").format(error=exc)
+            ) from exc
         if response.status_code in (400, 401):
             raise AuthenticationError(
-                "Identifiants Warcraft Logs refusés : vérifiez WCL_CLIENT_ID et WCL_CLIENT_SECRET."
+                tr(
+                    "Identifiants Warcraft Logs refusés : "
+                    "vérifiez WCL_CLIENT_ID et WCL_CLIENT_SECRET."
+                )
             )
         if response.status_code != 200:
             raise WclApiError(
-                f"Échec de l'authentification Warcraft Logs (HTTP {response.status_code})."
+                tr("Échec de l'authentification Warcraft Logs (HTTP {status}).").format(
+                    status=response.status_code
+                )
             )
         payload = response.json()
         return str(payload["access_token"]), float(payload.get("expires_in", 3600))
