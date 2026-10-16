@@ -4,9 +4,9 @@ import sys
 
 
 def main() -> int:
-    # The Qt interface arrives in roadmap step 3; the CLI is the MVP.
-    print("Interface pas encore disponible. Utilisez : uv run python -m wcl_notes.cli")
-    return 1
+    from wcl_notes.ui.app import main as run_app
+
+    return run_app()
 
 
 if __name__ == "__main__":
