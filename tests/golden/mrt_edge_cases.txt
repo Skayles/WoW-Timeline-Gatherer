@@ -1,0 +1,6 @@
+{time:00:00.0} - Kràùck {spell:1}
+{time:00:00.0} - Kràùck {spell:2}
+{time:00:01.3} - Kràùck {spell:3}
+{time:01:00.0} - Kràùck {spell:4}
+{time:10:05.1} - Kràùck {spell:5}
+{time:60:00.0} - Kràùck {spell:6}
