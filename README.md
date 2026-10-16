@@ -61,6 +61,23 @@ Sans `--spells`, la note garde les sorts importants de la spé définis dans
 `src/wcl_notes/data/spells/` (plus potions et bijoux de `_common.yaml`) ; `--all` garde tout.
 Les phases NSRT de chaque boss sont décrites dans `src/wcl_notes/data/encounters/`.
 
+## Exécutable Windows
+
+```bash
+uv run pyinstaller wcl_notes.spec --noconfirm
+```
+
+Résultat : `dist/WoW Timeline Gatherer/WoW Timeline Gatherer.exe` (dossier d'environ 90 Mo à
+garder entier ; créez un raccourci vers l'exe). Au premier lancement, l'application demande le
+Client ID et le Client Secret WCL et les enregistre dans le gestionnaire d'identifiants Windows.
+Pour vérifier un build : `"WoW Timeline Gatherer.exe" --self-check rapport.json`.
+
+## Cache
+
+Les réponses WCL sont gardées dans `%LOCALAPPDATA%\wcl-notes\cache.sqlite` : un log terminé
+rechargé ne coûte plus aucun point d'API (quota : 720 points/heure). Taille et bouton
+« Vider le cache » dans Réglages ; `--no-cache` pour le CLI.
+
 ## Qualité
 
 ```bash
