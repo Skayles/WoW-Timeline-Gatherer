@@ -4,6 +4,9 @@ import json
 
 from PySide6.QtCore import QSettings
 
+from wcl_notes.domain.spells import SpellPreset
+from wcl_notes.services.presets import PresetKey
+
 DEFAULT_PLAYER_NAME = "Kràùck"
 DEFAULT_SPEC = "Rogue-Assassination"
 MAX_RECENT_REPORTS = 10
@@ -78,6 +81,32 @@ class AppSettings:
             for item in raw
             if isinstance(item, list) and len(item) == 2
         ]
+
+    # --- spell presets (PresetStore) ------------------------------------------------
+
+    @staticmethod
+    def _preset_name(key: PresetKey) -> str:
+        return f"presets/{key[0]}/{key[1]}"
+
+    def get_preset(self, key: PresetKey) -> SpellPreset | None:
+        raw = self._settings.value(self._preset_name(key))
+        if raw is None:
+            return None
+        try:
+            data = json.loads(str(raw))
+            return SpellPreset(
+                include=frozenset(int(x) for x in data.get("include", [])),
+                exclude=frozenset(int(x) for x in data.get("exclude", [])),
+            )
+        except (ValueError, TypeError, AttributeError):
+            return None
+
+    def set_preset(self, key: PresetKey, preset: SpellPreset) -> None:
+        value = {"include": sorted(preset.include), "exclude": sorted(preset.exclude)}
+        self._settings.setValue(self._preset_name(key), json.dumps(value))
+
+    def delete_preset(self, key: PresetKey) -> None:
+        self._settings.remove(self._preset_name(key))
 
     def add_recent_report(self, code: str, title: str) -> None:
         recent = [(c, t) for c, t in self.recent_reports if c != code]

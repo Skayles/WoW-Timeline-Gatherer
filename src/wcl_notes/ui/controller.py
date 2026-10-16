@@ -12,6 +12,7 @@ from wcl_notes.api.rankings import fetch_catalog, fetch_rankings
 from wcl_notes.api.reports import fetch_player_casts, fetch_player_roles, fetch_report
 from wcl_notes.domain.models import Actor, Cast, Fight, Report, Role, Track, TrackRef
 from wcl_notes.domain.rankings import GameCatalog, RankingEntry, RankingQuery, RankingsPage
+from wcl_notes.services.presets import PresetStore, merge_preset, preset_key, seen_spells
 from wcl_notes.services.rankings import find_ranked_player
 from wcl_notes.services.report_navigation import resolve_fight
 from wcl_notes.services.report_reference import (
@@ -59,8 +60,11 @@ class AppController(QObject):
         runner: TaskRunner,
         client_factory: ClientFactory = default_client_factory,
         parent: QObject | None = None,
+        *,
+        presets: PresetStore | None = None,
     ) -> None:
         super().__init__(parent)
+        self._presets = presets
         self.workspace = Workspace()
         self._runner = runner
         self._client_factory = client_factory
@@ -187,6 +191,8 @@ class AppController(QObject):
 
     def _add_loaded_track(self, report: Report, track: Track, origin: str) -> bool:
         ref = track.ref
+        key = preset_key(track)
+        preset = self._presets.get_preset(key) if self._presets and key else None
         try:
             self.workspace.add(
                 track,
@@ -194,6 +200,7 @@ class AppController(QObject):
                 phase_infos=report.phases.get(track.fight.encounter_id, ()),
                 report_title=report.title,
                 origin=origin,
+                preset=preset,
             )
         except DifferentEncounterError as exc:
             self.track_state_changed.emit(ref, TrackState.REMOVED)
@@ -244,7 +251,25 @@ class AppController(QObject):
 
     def toggle_spell(self, spell_id: int) -> None:
         self.workspace.selection.toggle_spell(spell_id)
+        self._save_presets()
         self.selection_changed.emit()
+
+    def reset_selection(self) -> None:
+        """Back to the spec defaults, and forget the presets of the current tracks."""
+        if self._presets is not None:
+            for key in seen_spells(e.track for e in self.workspace.entries):
+                self._presets.delete_preset(key)
+        self.workspace.reset_selection()
+        self.selection_changed.emit()
+
+    def _save_presets(self) -> None:
+        if self._presets is None:
+            return
+        included = self.workspace.selection.included_spells
+        for key, seen in seen_spells(e.track for e in self.workspace.entries).items():
+            self._presets.set_preset(
+                key, merge_preset(self._presets.get_preset(key), included, seen)
+            )
 
     def set_spell_included(self, spell_id: int, included: bool) -> None:
         if self.workspace.selection.is_included(spell_id) != included:

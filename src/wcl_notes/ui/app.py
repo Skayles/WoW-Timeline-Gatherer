@@ -56,7 +56,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     def client_factory() -> WclClient:
         return WclClient(load_credentials(Path(".env")), cache=cache)
 
-    controller = AppController(runner, client_factory, parent=app)
+    controller = AppController(runner, client_factory, parent=app, presets=settings)
     window = MainWindow(controller, settings, icons, runner, cache=cache)
     window.show()
     return app.exec()

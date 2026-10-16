@@ -25,6 +25,14 @@ class ImportantSpell:
 
 
 @dataclass(frozen=True, slots=True)
+class SpellPreset:
+    """My choices for a boss and a spec, on top of the spec defaults."""
+
+    include: frozenset[int] = frozenset()
+    exclude: frozenset[int] = frozenset()
+
+
+@dataclass(frozen=True, slots=True)
 class SpecSpells:
     class_name: str
     spec: str

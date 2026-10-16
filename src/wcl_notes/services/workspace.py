@@ -5,9 +5,10 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 
 from wcl_notes.domain.models import Actor, Cast, PhaseInfo, Spell, Track, TrackRef
-from wcl_notes.domain.spells import SpecSpells, SpellCategory
+from wcl_notes.domain.spells import SpecSpells, SpellCategory, SpellPreset
 from wcl_notes.services.data_files import load_spec_spells
 from wcl_notes.services.notes import NoteAssignment
+from wcl_notes.services.presets import apply_preset
 from wcl_notes.services.selection import Selection, candidate_spells, default_spells
 
 TRACK_COLORS = (
@@ -97,7 +98,9 @@ class Workspace:
         phase_infos: tuple[PhaseInfo, ...] = (),
         report_title: str = "",
         origin: str = "",
+        preset: SpellPreset | None = None,
     ) -> TrackEntry:
+        """Add a track; its spells are pre-selected from ``preset``, else the spec defaults."""
         if not self.accepts(track.fight.encounter_id):
             raise DifferentEncounterError(
                 f"La timeline contient déjà un autre boss que {track.fight.name} : "
@@ -119,8 +122,19 @@ class Workspace:
             color=color,
         )
         self.entries.append(entry)
-        self.selection.included_spells |= default_spells(track, spec_spells_for(track.player))
+        self.selection.included_spells |= apply_preset(
+            self.default_spells(entry), preset, {c.spell_id for c in track.casts}
+        )
         return entry
+
+    def default_spells(self, entry: TrackEntry) -> set[int]:
+        return default_spells(entry.track, spec_spells_for(entry.track.player))
+
+    def reset_selection(self) -> None:
+        """Back to the spec defaults of the current tracks (disabled casts are kept)."""
+        self.selection.included_spells = set().union(
+            *(self.default_spells(entry) for entry in self.entries)
+        )
 
     def remove(self, ref: TrackRef) -> None:
         self.entries = [e for e in self.entries if e.ref != ref]

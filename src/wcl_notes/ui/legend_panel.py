@@ -7,6 +7,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QListWidget,
     QListWidgetItem,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
@@ -43,10 +44,15 @@ class LegendPanel(QWidget):
         self.list.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         self.list.itemChanged.connect(self._on_item_changed)
 
+        self.reset_button = QPushButton(self.tr("Réinitialiser"))
+        self.reset_button.setToolTip(
+            self.tr("Revenir aux sorts par défaut de la spé et oublier vos choix pour ce boss")
+        )
+        self.reset_button.clicked.connect(controller.reset_selection)
         hint = QLabel(
             self.tr(
-                "Décocher un sort le retire de la timeline et de la note. "
-                "Cliquer sur un cast de la timeline le désactive seul."
+                "Décocher un sort le retire de la timeline et de la note ; vos choix sont "
+                "retenus par boss et par spé. Cliquer sur un cast de la timeline le désactive seul."
             )
         )
         hint.setWordWrap(True)
@@ -57,6 +63,7 @@ class LegendPanel(QWidget):
         layout.addWidget(title)
         layout.addWidget(self.show_all)
         layout.addWidget(self.list, 1)
+        layout.addWidget(self.reset_button)
         layout.addWidget(hint)
 
         controller.workspace_changed.connect(self.refresh)
@@ -66,6 +73,7 @@ class LegendPanel(QWidget):
 
     def refresh(self) -> None:
         self._updating = True
+        self.reset_button.setEnabled(bool(self._controller.workspace.entries))
         scroll = self.list.verticalScrollBar().value()
         self.list.clear()
         self.show_all.setChecked(self._controller.workspace.selection.show_all)
