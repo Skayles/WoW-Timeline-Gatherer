@@ -1,3 +1,8 @@
+from importlib import resources
+
+import yaml
+
+from conftest import load_json
 from wcl_notes.domain.encounters import IDENTITY_MAPPING, MappingStatus, PhaseStrategy
 from wcl_notes.domain.spells import SpellCategory
 from wcl_notes.services.data_files import (
@@ -44,7 +49,32 @@ def test_rogue_assassination_spells() -> None:
 
 
 def test_missing_spec_file() -> None:
-    assert load_spec_spells("Mage", "Frost") is None
+    assert load_spec_spells("Mage", "Unknown") is None
+
+
+def test_every_spec_has_a_spell_list() -> None:
+    classes = load_json("game_catalog.json")["data"]["gameData"]["classes"]
+    specs = [(c["slug"], s["slug"]) for c in classes for s in c["specs"]]
+    assert len(specs) == 40
+    for class_slug, spec_slug in specs:
+        spells = load_spec_spells(class_slug, spec_slug)
+        assert spells is not None, f"{class_slug}-{spec_slug}"
+        assert (spells.class_name, spells.spec) == (class_slug, spec_slug)
+        ids = [s.id for s in spells.spells]
+        assert len(ids) == len(set(ids)), f"{class_slug}-{spec_slug}: duplicate spell"
+        # The spec file itself (not the common trinkets) must pre-select something.
+        own = yaml.safe_load(
+            resources.files("wcl_notes")
+            .joinpath("data", "spells", spec_file_name(class_slug, spec_slug))
+            .read_text(encoding="utf-8")
+        )
+        assert any(s.get("selected_by_default") for s in own["spells"]), spec_slug
+
+
+def test_classic_cooldowns_removed_in_midnight_are_absent() -> None:
+    frost = load_spec_spells("Mage", "Frost")
+    assert frost is not None
+    assert 12472 not in {s.id for s in frost.spells}  # Icy Veins: never cast in the logs
 
 
 def test_spec_file_names() -> None:
@@ -53,3 +83,4 @@ def test_spec_file_names() -> None:
     assert spec_file_name("Hunter", "BeastMastery") == "hunter_beastmastery.yaml"
     assert "_common.yaml" not in all_spec_files()
     assert "rogue_assassination.yaml" in all_spec_files()
+    assert len(all_spec_files()) == 40

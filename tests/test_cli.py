@@ -102,13 +102,14 @@ def test_default_filter_uses_spec_spells(
 
 
 def test_all_keeps_every_cast(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
-    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126", "--all") == 0
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126", "--all", "--merge", "0") == 0
     assert len(capsys.readouterr().out.splitlines()) == 338
 
 
 def test_spec_without_spell_file_keeps_everything(
-    fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]
+    fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str], monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    monkeypatch.setattr("wcl_notes.cli.load_spec_spells", lambda class_name, spec: None)
     pages = load_json("casts_cmw7_f7_s118_pages.json")
     cast_events = [
         e

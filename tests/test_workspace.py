@@ -27,8 +27,10 @@ def test_rogue_defaults_come_from_the_spec_file(workspace: Workspace) -> None:
 
 
 def test_unknown_spec_preselects_rarely_cast_spells(report: Report, mage_track: Track) -> None:
+    # An actor whose icon has no spec ("Mage") has no spell list.
+    no_spec = replace(mage_track, player=replace(mage_track.player, icon="Mage"))
     ws = Workspace()
-    ws.add(mage_track, spells=report.spells)
+    ws.add(no_spec, spells=report.spells)
     included = ws.selection.included_spells
     assert TIME_WARP in included
     assert ICE_LANCE not in included
@@ -166,3 +168,12 @@ def test_fetch_player_roles(fake_wcl: FakeWcl, report: Report) -> None:
         roles = fetch_player_roles(client, REPORT_CODE, resolve_fight(report, 7))
     assert len(roles) == 20
     assert fake_wcl.calls == [("PlayerDetails", {"code": REPORT_CODE, "fightID": 7})]
+
+
+def test_note_merges_double_logged_casts(rogue_track: Track) -> None:
+    deathmark = next(c for c in rogue_track.casts if c.spell_id == DEATHMARK)
+    echo = replace(deathmark, time_ms=deathmark.time_ms + 100)
+    assignment = NoteAssignment(rogue_track, [deathmark, echo], "Kràùck")
+    assert len(build_note([assignment], NoteOptions()).text.splitlines()) == 1
+    unmerged = build_note([assignment], NoteOptions(merge_window_ms=0))
+    assert len(unmerged.text.splitlines()) == 2

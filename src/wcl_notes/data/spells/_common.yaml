@@ -1,7 +1,26 @@
-# Spells shared by every spec (potions, current-tier trinkets), merged into each spec file.
-# IDs and names checked against WCL masterData.abilities (The Venomous Abyss logs, 2026-10).
+# Spells shared by every spec, merged into each spec file: potions, current-tier on-use
+# trinkets and racials. IDs and names from WCL (top Mythic logs of The Venomous Abyss,
+# 2026-10, see scripts/spell_lists.py); a spell only shows up when the player cast it.
 spells:
+  # Combat potions are part of the burst plan; healing and mana potions are reactive.
   - {id: 1236994, name: Potion of Recklessness, category: consumable, selected_by_default: true}
+  - {id: 1236616, name: "Light's Potential", category: consumable, selected_by_default: true}
+  - {id: 1295132, name: Liquid Luster, category: consumable}
+  - {id: 1236648, name: Lightfused Mana Potion, category: consumable}
   - {id: 1295247, name: Concentrated Silvermoon Health Potion, category: consumable}
+  - {id: 1234768, name: Silvermoon Health Potion, category: consumable}
+  - {id: 6262, name: Healthstone, category: consumable}
+  - {id: 452930, name: Demonic Healthstone, category: consumable}
+  # On-use trinkets seen across many specs.
   - {id: 1297761, name: "Voracious Heart of Ula'tek", category: trinket, selected_by_default: true}
   - {id: 1297908, name: Font of Venomous Rage, category: trinket, selected_by_default: true}
+  - {id: 1293316, name: Empowering Venom, category: trinket, selected_by_default: true}
+  - {id: 1291894, name: Soulcoiler Ritual Vessel, category: trinket, selected_by_default: true}
+  - {id: 1250533, name: "Freightrunner's Flask", category: trinket, selected_by_default: true}
+  - {id: 1295885, name: "Hex Lord's Doom", category: trinket, selected_by_default: true}
+  # Offensive racials, used with the cooldowns.
+  - {id: 26297, name: Berserking, category: offensive, selected_by_default: true}
+  - {id: 20572, name: Blood Fury, category: offensive, selected_by_default: true}
+  - {id: 33697, name: Blood Fury, category: offensive, selected_by_default: true}
+  - {id: 33702, name: Blood Fury, category: offensive, selected_by_default: true}
+  - {id: 274738, name: Ancestral Call, category: offensive, selected_by_default: true}
