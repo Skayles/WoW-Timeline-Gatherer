@@ -70,6 +70,18 @@ class AppSettings:
         self._settings.setValue("nsrt_dur", str(value))
 
     @property
+    def merge_s(self) -> float:
+        """Same spell cast again within this many seconds: one line in the note."""
+        try:
+            return max(float(self._str("merge_s", "0.5")), 0.0)
+        except ValueError:
+            return 0.5
+
+    @merge_s.setter
+    def merge_s(self, value: float) -> None:
+        self._settings.setValue("merge_s", str(value))
+
+    @property
     def recent_reports(self) -> list[tuple[str, str]]:
         """Most recent first: (report code, title)."""
         try:

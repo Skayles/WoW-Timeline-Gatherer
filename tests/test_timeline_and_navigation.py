@@ -1,7 +1,7 @@
 import pytest
 
 from conftest import ROGUE_ID
-from wcl_notes.domain.models import Actor, CastEvent, CastKind, Fight, Report
+from wcl_notes.domain.models import Actor, Cast, CastEvent, CastKind, Fight, Report
 from wcl_notes.domain.names import character_name
 from wcl_notes.services.report_navigation import (
     NavigationError,
@@ -10,7 +10,7 @@ from wcl_notes.services.report_navigation import (
     players_in_fight,
     resolve_fight,
 )
-from wcl_notes.services.timeline import build_casts, spell_counts
+from wcl_notes.services.timeline import build_casts, merge_close_casts, spell_counts
 
 FIGHT = Fight(
     id=1, encounter_id=3470, name="Boss", difficulty=5, kill=True, start_ms=10_000, end_ms=70_000
@@ -84,3 +84,16 @@ def test_actor_spec_from_icon() -> None:
 )
 def test_character_name_drops_realm_and_keeps_accents(name: str, expected: str) -> None:
     assert character_name(name) == expected
+
+
+def test_merge_close_casts_keeps_one_reminder() -> None:
+    def cast(time_ms: int, spell_id: int = 10060, source_id: int = 1) -> Cast:
+        return Cast(time_ms=time_ms, spell_id=spell_id, source_id=source_id)
+
+    # Power Infusion logged twice at once, again 100 ms apart, then a real second use.
+    casts = [cast(4_800), cast(4_800), cast(166_000), cast(166_100), cast(200_000)]
+    assert [c.time_ms for c in merge_close_casts(casts, 500)] == [4_800, 166_000, 200_000]
+    assert len(merge_close_casts(casts, 0)) == 5
+    # Other spells and other players are never merged together.
+    mixed = [cast(1_000), cast(1_200, spell_id=1), cast(1_300, source_id=2)]
+    assert len(merge_close_casts(mixed, 1_000)) == 3

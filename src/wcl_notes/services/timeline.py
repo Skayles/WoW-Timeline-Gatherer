@@ -27,5 +27,26 @@ def build_casts(
     return tuple(casts)
 
 
+def merge_close_casts(casts: Iterable[Cast], window_ms: int) -> list[Cast]:
+    """Keep one cast when the same spell is cast again within ``window_ms``.
+
+    WCL sometimes logs a spell twice at once (one cast on two targets, charges used back
+    to back): one reminder is enough. ``window_ms <= 0`` keeps everything.
+    """
+    ordered = sorted(casts, key=lambda c: c.time_ms)
+    if window_ms <= 0:
+        return ordered
+    last_kept: dict[tuple[int, int], int] = {}
+    kept = []
+    for cast in ordered:
+        key = (cast.source_id, cast.spell_id)
+        previous = last_kept.get(key)
+        if previous is not None and cast.time_ms - previous < window_ms:
+            continue
+        last_kept[key] = cast.time_ms
+        kept.append(cast)
+    return kept
+
+
 def spell_counts(casts: Iterable[Cast]) -> Counter[int]:
     return Counter(cast.spell_id for cast in casts)

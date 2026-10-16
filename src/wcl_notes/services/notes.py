@@ -1,7 +1,7 @@
 """Build an MRT or NSRT note from one track, or several tracks of the same boss."""
 
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from enum import StrEnum
 
 from wcl_notes.domain.encounters import MappingStatus
@@ -16,8 +16,11 @@ from wcl_notes.exporters.nsrt import (
 )
 from wcl_notes.services.data_files import nsrt_mapping
 from wcl_notes.services.phases import nsrt_segments, phase_casts
+from wcl_notes.services.timeline import merge_close_casts
 
 KILL_TIME_TOLERANCE = 0.10
+# Below the 0.75 s minimum global cooldown: catches double-logged casts, never two real ones.
+DEFAULT_MERGE_WINDOW_MS = 500
 MAPPING_STATUS_LABELS = {
     MappingStatus.APPROXIMATE: "phases NSRT approximatives",
     MappingStatus.UNVERIFIED: "phases NSRT non vérifiées",
@@ -36,6 +39,8 @@ class NoteOptions:
     dur: int | None = None
     my_kill_ms: int | None = None
     """Kill time of my raid, to warn when a source kill is much shorter or longer."""
+    merge_window_ms: int = DEFAULT_MERGE_WINDOW_MS
+    """Same spell cast again within this window: one line only (0 = keep all)."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -60,6 +65,9 @@ def build_note(assignments: Sequence[NoteAssignment], options: NoteOptions) -> N
         raise ValueError("Une note ne peut couvrir qu'un seul boss.")
 
     warnings = _kill_time_warnings(assignments, options.my_kill_ms)
+    assignments = [
+        replace(a, casts=merge_close_casts(a.casts, options.merge_window_ms)) for a in assignments
+    ]
     if options.format is NoteFormat.MRT:
         entries = [(a.player_name, c) for a in assignments for c in a.casts]
         return NoteResult(

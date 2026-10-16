@@ -22,7 +22,13 @@ from wcl_notes.domain.spells import SpecSpells
 from wcl_notes.exporters.mrt import format_mrt_time
 from wcl_notes.labels import difficulty_label, fight_label, format_duration, spec_label
 from wcl_notes.services.data_files import load_spec_spells, spec_file_name
-from wcl_notes.services.notes import NoteAssignment, NoteFormat, NoteOptions, build_note
+from wcl_notes.services.notes import (
+    DEFAULT_MERGE_WINDOW_MS,
+    NoteAssignment,
+    NoteFormat,
+    NoteOptions,
+    build_note,
+)
 from wcl_notes.services.report_navigation import (
     NavigationError,
     boss_fights,
@@ -83,6 +89,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--dur", type=int, help="NSRT : durée d'affichage en secondes (défaut : réglage NSRT)"
+    )
+    parser.add_argument(
+        "--merge",
+        type=float,
+        default=DEFAULT_MERGE_WINDOW_MS / 1000,
+        help="regrouper un même sort relancé à moins de N secondes (0 = jamais, défaut : 0,5)",
     )
     parser.add_argument("--pets", action="store_true", help="inclure les casts des familiers")
     parser.add_argument("--begincast", action="store_true", help="inclure les débuts d'incantation")
@@ -157,7 +169,10 @@ def _run(args: argparse.Namespace, client: WclClient) -> int:
     )
     track = Track(TrackRef(report.code, fight.id, player.id), player, fight, casts)
     options = NoteOptions(
-        format=NoteFormat(args.format), offset_ms=round(args.offset * 1000), dur=args.dur
+        format=NoteFormat(args.format),
+        offset_ms=round(args.offset * 1000),
+        dur=args.dur,
+        merge_window_ms=round(args.merge * 1000),
     )
     result = build_note([NoteAssignment(track, casts, args.name)], options)
     for info in result.infos:

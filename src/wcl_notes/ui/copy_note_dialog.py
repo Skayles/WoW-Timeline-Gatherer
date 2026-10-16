@@ -121,6 +121,16 @@ class CopyNoteDialog(QDialog):
         self.dur.setSuffix(" s")
         self.dur.setValue(settings.nsrt_dur)
         self.dur.setToolTip(self.tr("Durée d'affichage du reminder NSRT (dur)"))
+        self.merge = QDoubleSpinBox()
+        self.merge.setRange(0, 10)
+        self.merge.setSingleStep(0.5)
+        self.merge.setDecimals(1)
+        self.merge.setSuffix(" s")
+        self.merge.setSpecialValueText(self.tr("jamais"))
+        self.merge.setValue(settings.merge_s)
+        self.merge.setToolTip(
+            self.tr("Un même sort relancé dans cet intervalle ne donne qu'une ligne")
+        )
         self.kill_time = QLineEdit()
         self.kill_time.setPlaceholderText(self.tr("m:ss, optionnel"))
         self.kill_time.setToolTip(
@@ -136,6 +146,7 @@ class CopyNoteDialog(QDialog):
         form.addRow(self.tr("Player Name"), self.player_name)
         form.addRow(self.tr("Décalage"), self.offset)
         form.addRow(self.tr("Durée NSRT"), self.dur)
+        form.addRow(self.tr("Regrouper"), self.merge)
         form.addRow(self.tr("Mon temps de kill"), self.kill_time)
 
         self.preview = QPlainTextEdit()
@@ -183,6 +194,7 @@ class CopyNoteDialog(QDialog):
         self.player_name.textChanged.connect(self.refresh)
         self.offset.valueChanged.connect(self.refresh)
         self.dur.valueChanged.connect(self.refresh)
+        self.merge.valueChanged.connect(self.refresh)
         self.kill_time.textChanged.connect(self.refresh)
         self.raid_table.itemChanged.connect(self.refresh)
         controller.selection_changed.connect(self.refresh)
@@ -213,6 +225,7 @@ class CopyNoteDialog(QDialog):
             offset_ms=round(self.offset.value() * 1000),
             dur=self.dur.value() or None,
             my_kill_ms=parse_kill_time(self.kill_time.text()),
+            merge_window_ms=round(self.merge.value() * 1000),
         )
 
     def note_result(self) -> NoteResult:
@@ -246,6 +259,7 @@ class CopyNoteDialog(QDialog):
         self._settings.note_format = self.note_format().value
         self._settings.offset_s = self.offset.value()
         self._settings.nsrt_dur = self.dur.value()
+        self._settings.merge_s = self.merge.value()
 
     def done(self, result: int) -> None:
         self._remember()
