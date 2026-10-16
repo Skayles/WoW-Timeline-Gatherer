@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from conftest import REPORT_CODE, FakeWcl, read_golden
+from conftest import REPORT_CODE, FakeWcl, load_json, read_golden
 from wcl_notes.api.client import WclClient
 from wcl_notes.cli import main
 
@@ -75,3 +75,56 @@ def test_unknown_player_is_a_clear_error(
 def test_invalid_reference(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
     assert run(fake_wcl, "https://lorrgs.io/") == 1
     assert "Erreur" in capsys.readouterr().err
+
+
+def test_nsrt_note(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run(fake_wcl, f"{URL}#fight=7&source=126", "-F", "nsrt", "-s", "360194,385627,1856") == 0
+    captured = capsys.readouterr()
+    assert captured.out == read_golden("nsrt_rogue_nekzali.txt")
+    assert "Phases NSRT : 1 à 00:00.0, 1.5 à 02:19.4, 2 à 03:50.8" in captured.err
+    assert "approximatives" in captured.err
+
+
+def test_nsrt_dur(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126", "-F", "nsrt", "--dur", "5") == 0
+    lines = capsys.readouterr().out.splitlines()
+    assert all(line.endswith(";dur:5") for line in lines[1:])
+
+
+def test_default_filter_uses_spec_spells(
+    fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126") == 0
+    captured = capsys.readouterr()
+    spells = {line.rsplit("{spell:", 1)[1].rstrip("}") for line in captured.out.splitlines()}
+    assert spells == {"360194", "385627", "1856", "1297761"}  # + Voracious Heart trinket
+    assert "sorts importants Rogue Assassination" in captured.err
+
+
+def test_all_keeps_every_cast(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126", "--all") == 0
+    assert len(capsys.readouterr().out.splitlines()) == 338
+
+
+def test_spec_without_spell_file_keeps_everything(
+    fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]
+) -> None:
+    pages = load_json("casts_cmw7_f7_s118_pages.json")
+    cast_events = [
+        e
+        for page in pages
+        for e in page["data"]["reportData"]["report"]["events"]["data"]
+        if e["type"] == "cast"
+    ]
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "118") == 0
+    captured = capsys.readouterr()
+    assert len(captured.out.splitlines()) == len(cast_events)
+    assert "mage_frost.yaml" in captured.err
+
+
+def test_summary_marks_default_spells(
+    fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]
+) -> None:
+    assert run(fake_wcl, REPORT_CODE, "-f", "7", "-p", "126", "--summary") == 0
+    deathmark = next(line for line in capsys.readouterr().out.splitlines() if "Deathmark" in line)
+    assert "★" in deathmark

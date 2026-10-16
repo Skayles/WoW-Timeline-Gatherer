@@ -1,4 +1,4 @@
-"""Command-line MVP: report code + fight + player -> MRT note in the terminal.
+"""Command-line MVP: report code + fight + player -> MRT or NSRT note in the terminal.
 
 Without --fight it lists the boss fights, without --player the players of the fight,
 so the report can be explored step by step.
@@ -15,9 +15,14 @@ from wcl_notes.api.client import WclClient
 from wcl_notes.api.credentials import load_credentials
 from wcl_notes.api.errors import WclError
 from wcl_notes.api.reports import fetch_pet_casts, fetch_player_casts, fetch_report
+from wcl_notes.domain.encounters import MappingStatus
 from wcl_notes.domain.models import Actor, Cast, Fight, Report
 from wcl_notes.domain.names import character_name
+from wcl_notes.domain.spells import SpecSpells
 from wcl_notes.exporters.mrt import export_mrt, format_mrt_time
+from wcl_notes.exporters.nsrt import NSRT_DIFFICULTY, NsrtHeader, export_nsrt, format_nsrt_phase
+from wcl_notes.services.data_files import load_spec_spells, nsrt_mapping, spec_file_name
+from wcl_notes.services.phases import nsrt_segments, phase_casts
 from wcl_notes.services.report_navigation import (
     NavigationError,
     boss_fights,
@@ -35,6 +40,10 @@ from wcl_notes.services.timeline import build_casts, spell_counts
 
 DEFAULT_PLAYER_NAME = "Kràùck"
 DIFFICULTY_LABELS = {1: "LFR", 3: "Normal", 4: "Héroïque", 5: "Mythique", 10: "Mythique+"}
+MAPPING_STATUS_LABELS = {
+    MappingStatus.APPROXIMATE: "phases NSRT approximatives",
+    MappingStatus.UNVERIFIED: "phases NSRT non vérifiées",
+}
 
 ClientFactory = Callable[[argparse.Namespace], WclClient]
 
@@ -42,7 +51,7 @@ ClientFactory = Callable[[argparse.Namespace], WclClient]
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="wcl_notes.cli",
-        description="Génère une note MRT à partir d'un log Warcraft Logs.",
+        description="Génère une note MRT ou NSRT à partir d'un log Warcraft Logs.",
     )
     parser.add_argument("report", help="code du report ou URL Warcraft Logs")
     parser.add_argument("-f", "--fight", type=_fight_arg, help="ID du fight, ou « last »")
@@ -54,16 +63,31 @@ def build_parser() -> argparse.ArgumentParser:
         help=f"nom à écrire dans la note (défaut : {DEFAULT_PLAYER_NAME})",
     )
     parser.add_argument(
+        "-F",
+        "--format",
+        choices=("mrt", "nsrt"),
+        default="mrt",
+        help="format de la note (défaut : mrt)",
+    )
+    parser.add_argument(
         "-s",
         "--spells",
         type=_spell_ids_arg,
         help="IDs des sorts à garder, séparés par des virgules",
     )
     parser.add_argument(
+        "--all",
+        action="store_true",
+        help="garder tous les casts au lieu des sorts importants de la spé",
+    )
+    parser.add_argument(
         "--summary", action="store_true", help="lister les sorts castés au lieu de générer la note"
     )
     parser.add_argument(
         "--offset", type=float, default=0.0, help="avancer chaque cast de N secondes"
+    )
+    parser.add_argument(
+        "--dur", type=int, help="NSRT : durée d'affichage en secondes (défaut : réglage NSRT)"
     )
     parser.add_argument("--pets", action="store_true", help="inclure les casts des familiers")
     parser.add_argument("--begincast", action="store_true", help="inclure les débuts d'incantation")
@@ -112,25 +136,80 @@ def _run(args: argparse.Namespace, client: WclClient) -> int:
         for pet_id in pet_ids(fight, player.id):
             events.extend(fetch_pet_casts(client, report.code, fight, pet_id))
     casts = build_casts(events, fight, include_begincast=args.begincast, include_fake=args.fake)
-    if args.spells:
-        casts = tuple(c for c in casts if c.spell_id in args.spells)
+    spec_spells = load_spec_spells(player.sub_type, player.spec) if player.spec else None
 
     if args.summary:
-        _print_summary(report, player, casts)
+        if args.spells:
+            casts = tuple(c for c in casts if c.spell_id in args.spells)
+        _print_summary(report, player, casts, spec_spells)
         return 0
 
-    note = export_mrt(casts, args.name, offset_ms=round(args.offset * 1000))
+    casts = _select_casts(casts, args, player, spec_spells)
+    offset_ms = round(args.offset * 1000)
     print(
         f"# Source : {player.name} ({_spec_label(player)}) — {_fight_label(fight)} — "
         f"{len(casts)} casts. Adaptez à votre compo et à votre temps de kill.",
         file=sys.stderr,
     )
+    if args.format == "nsrt":
+        note = _nsrt_note(fight, casts, args.name, offset_ms=offset_ms, dur=args.dur)
+    else:
+        note = export_mrt(casts, args.name, offset_ms=offset_ms)
+
     if args.output:
         args.output.write_text(note + "\n", encoding="utf-8")
         print(f"# Note écrite dans {args.output}", file=sys.stderr)
     else:
         print(note)
     return 0
+
+
+def _select_casts(
+    casts: tuple[Cast, ...],
+    args: argparse.Namespace,
+    player: Actor,
+    spec_spells: SpecSpells | None,
+) -> tuple[Cast, ...]:
+    if args.spells:
+        return tuple(c for c in casts if c.spell_id in args.spells)
+    if args.all:
+        return casts
+    if spec_spells is None:
+        wanted = spec_file_name(player.sub_type, player.spec or "?")
+        print(
+            f"# Pas de liste de sorts pour {_spec_label(player)} (data/spells/{wanted}) : "
+            "tous les casts sont gardés, filtrez avec --spells.",
+            file=sys.stderr,
+        )
+        return casts
+    print(
+        f"# Filtre : sorts importants {_spec_label(player)} (--all pour tout garder).",
+        file=sys.stderr,
+    )
+    selected = spec_spells.default_ids()
+    return tuple(c for c in casts if c.spell_id in selected)
+
+
+def _nsrt_note(
+    fight: Fight, casts: Sequence[Cast], name: str, *, offset_ms: int, dur: int | None
+) -> str:
+    mapping = nsrt_mapping(fight.encounter_id)
+    segments = nsrt_segments(fight, mapping)
+    phases = ", ".join(
+        f"{format_nsrt_phase(s.phase)} à {format_mrt_time(s.start_ms)}" for s in segments
+    )
+    print(f"# Phases NSRT : {phases}", file=sys.stderr)
+    if mapping.status is not MappingStatus.VERIFIED:
+        print(
+            f"# Attention, {MAPPING_STATUS_LABELS[mapping.status]} : {mapping.note}",
+            file=sys.stderr,
+        )
+    header = NsrtHeader(
+        encounter_id=fight.encounter_id,
+        name=fight.name,
+        difficulty=NSRT_DIFFICULTY.get(fight.difficulty) if fight.difficulty else None,
+    )
+    return export_nsrt(phase_casts(casts, segments, offset_ms=offset_ms), name, header, dur=dur)
 
 
 def _default_client(args: argparse.Namespace) -> WclClient:
@@ -164,21 +243,28 @@ def _print_players(report: Report, fight: Fight, players: list[Actor]) -> None:
     print("→ Relancez avec --player <nom ou id>.")
 
 
-def _print_summary(report: Report, player: Actor, casts: Sequence[Cast]) -> None:
+def _print_summary(
+    report: Report, player: Actor, casts: Sequence[Cast], spec_spells: SpecSpells | None
+) -> None:
     counts = spell_counts(casts)
     first_cast: dict[int, int] = {}
     for cast in casts:
         first_cast.setdefault(cast.spell_id, cast.time_ms)
+    selected = spec_spells.default_ids() if spec_spells else frozenset()
     names = {sid: spell.name for sid, spell in report.spells.items()}
     width = max((len(names.get(sid, "?")) for sid in counts), default=0)
     print(f"Sorts castés par {character_name(player.name)} ({len(casts)} casts) :")
-    print(f"  {'ID':>8}  {'Sort':<{width}}  {'Casts':>5}  Premier")
+    print(f"     {'ID':>8}  {'Sort':<{width}}  {'Casts':>5}  Premier")
     for spell_id, count in counts.most_common():
         name = names.get(spell_id, "?")
+        mark = "★" if spell_id in selected else " "
         print(
-            f"  {spell_id:>8}  {name:<{width}}  {count:>5}  {format_mrt_time(first_cast[spell_id])}"
+            f"  {mark}  {spell_id:>8}  {name:<{width}}  {count:>5}  "
+            f"{format_mrt_time(first_cast[spell_id])}"
         )
-    print("→ Gardez les sorts voulus avec --spells <id>,<id>,…")
+    if selected:
+        print("★ = gardé par défaut dans la note.")
+    print("→ Choisissez les sorts avec --spells <id>,<id>,… (ou --all pour tout garder)")
 
 
 def _fight_label(fight: Fight) -> str:
