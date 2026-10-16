@@ -23,6 +23,10 @@ Identifiants API : créer un client sur https://www.warcraftlogs.com/api/clients
 
 `uv run python -m wcl_notes` ouvre la fenêtre principale :
 
+- **Classements** : raid, boss, difficulté, région, classe et spé (pré-remplies avec la vôtre),
+  métrique DPS/HPS → meilleurs logs, 100 par page (« Page suivante »). Filtrez par durée de kill
+  pour trouver des kills proches du temps de votre raid, par nom, et triez par rang, durée ou date.
+  Cocher une ligne charge le log et ajoute la piste. Les classements sont gardés en cache 1 h.
 - **Log** : collez une URL ou un code de report, choisissez un fight (kills par défaut, wipes
   accessibles), puis cochez les joueurs, groupés par rôle. « Cocher ma spé » et « Me cocher »
   utilisent les réglages. Une URL avec `#fight=…&source=…` pré-sélectionne le fight et le joueur.
