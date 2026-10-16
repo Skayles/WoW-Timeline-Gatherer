@@ -1,25 +1,35 @@
-"""« Réglages » dialog: my name, my spec, and the WCL API credentials (OS keyring)."""
+"""« Réglages » dialog: my name, my spec, the WCL API credentials (OS keyring), the cache."""
 
 from PySide6.QtWidgets import (
     QDialog,
     QDialogButtonBox,
     QFormLayout,
     QGroupBox,
+    QHBoxLayout,
     QLabel,
     QLineEdit,
     QMessageBox,
+    QPushButton,
     QVBoxLayout,
     QWidget,
 )
 
 from wcl_notes.api.credentials import Credentials, store_credentials
+from wcl_notes.cache.response_cache import ResponseCache
 from wcl_notes.ui.settings import AppSettings
 from wcl_notes.ui.style import TEXT_DIM
 
 
 class SettingsDialog(QDialog):
-    def __init__(self, settings: AppSettings, parent: QWidget | None = None) -> None:
+    def __init__(
+        self,
+        settings: AppSettings,
+        parent: QWidget | None = None,
+        *,
+        cache: ResponseCache | None = None,
+    ) -> None:
         super().__init__(parent)
+        self._cache = cache
         self.setWindowTitle(self.tr("Réglages"))
         self.setMinimumWidth(460)
         self._settings = settings
@@ -61,10 +71,57 @@ class SettingsDialog(QDialog):
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
 
+        cache_box = QGroupBox(self.tr("Cache local"))
+        cache_layout = QVBoxLayout(cache_box)
+        self.cache_label = QLabel()
+        self.cache_label.setWordWrap(True)
+        self.clear_cache_button = QPushButton(self.tr("Vider le cache"))
+        self.clear_cache_button.clicked.connect(self._clear_cache)
+        cache_row = QHBoxLayout()
+        cache_row.addWidget(self.cache_label, 1)
+        cache_row.addWidget(self.clear_cache_button)
+        cache_layout.addLayout(cache_row)
+        cache_note = QLabel(
+            self.tr(
+                "Les logs terminés sont gardés sans limite de durée (ils ne changent plus) : "
+                "les recharger ne coûte aucun point d'API. Les classements expirent après 1 h."
+            )
+        )
+        cache_note.setWordWrap(True)
+        cache_note.setStyleSheet(f"color: {TEXT_DIM};")
+        cache_layout.addWidget(cache_note)
+        self._refresh_cache_label()
+
         layout = QVBoxLayout(self)
         layout.addLayout(player)
         layout.addWidget(api_box)
+        layout.addWidget(cache_box)
         layout.addWidget(buttons)
+
+    def _refresh_cache_label(self) -> None:
+        if self._cache is None:
+            self.cache_label.setText(self.tr("Cache indisponible."))
+            self.clear_cache_button.setEnabled(False)
+            return
+        stats = self._cache.stats()
+        self.cache_label.setText(
+            self.tr("{n} réponse(s), {size:.1f} Mo — {path}").format(
+                n=stats.entries, size=stats.size_bytes / 1_000_000, path=self._cache.path
+            )
+        )
+        self.clear_cache_button.setEnabled(stats.entries > 0)
+
+    def _clear_cache(self) -> None:
+        if self._cache is None:
+            return
+        answer = QMessageBox.question(
+            self,
+            self.tr("Vider le cache"),
+            self.tr("Supprimer toutes les réponses gardées ? Les logs seront re-téléchargés."),
+        )
+        if answer == QMessageBox.StandardButton.Yes:
+            self._cache.clear()
+            self._refresh_cache_label()
 
     def accept(self) -> None:
         client_id = self.client_id.text().strip()

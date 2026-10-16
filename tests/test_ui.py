@@ -13,7 +13,6 @@ from pytestqt.qtbot import QtBot
 from conftest import MAGE_ID, REPORT_CODE, ROGUE_ID, FakeWcl
 from wcl_notes.api.errors import WclError
 from wcl_notes.domain.models import Report, TrackRef
-from wcl_notes.domain.rankings import RankingQuery
 from wcl_notes.services.notes import NoteFormat, NoteOptions, build_note
 from wcl_notes.services.report_navigation import resolve_fight
 from wcl_notes.services.report_reference import parse_report_reference
@@ -427,16 +426,3 @@ def test_ticking_a_ranking_adds_its_track(
     assert item.text(5) == "✓"
     item.setCheckState(0, Qt.CheckState.Unchecked)
     assert controller.workspace.entries == []
-
-
-def test_rankings_are_cached_for_an_hour(fake_wcl: FakeWcl) -> None:
-    now = [0.0]
-    controller = AppController(
-        TaskRunner(synchronous=True), client_factory=fake_wcl.client, clock=lambda: now[0]
-    )
-    query = RankingQuery(3470, 5, "Rogue", "Assassination", "dps")
-    for _ in range(2):
-        controller.load_rankings(query)
-    now[0] = 3601.0
-    controller.load_rankings(query)
-    assert sum(name == "CharacterRankings" for name, _ in fake_wcl.calls) == 2

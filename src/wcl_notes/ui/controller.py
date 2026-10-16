@@ -1,7 +1,6 @@
 """Glue between the widgets, the WCL API (through background tasks) and the workspace."""
 
 import threading
-import time
 from collections.abc import Callable
 from pathlib import Path
 
@@ -26,7 +25,6 @@ from wcl_notes.ui.workers import TaskRunner
 
 ClientFactory = Callable[[], WclClient]
 RankingKey = tuple[str, int, str]  # report code, fight id, character name
-RANKINGS_TTL_S = 3600.0  # rankings move; reports are immutable
 
 
 def ranking_key(entry: RankingEntry) -> RankingKey:
@@ -61,8 +59,6 @@ class AppController(QObject):
         runner: TaskRunner,
         client_factory: ClientFactory = default_client_factory,
         parent: QObject | None = None,
-        *,
-        clock: Callable[[], float] = time.monotonic,
     ) -> None:
         super().__init__(parent)
         self.workspace = Workspace()
@@ -75,9 +71,7 @@ class AppController(QObject):
         self._loading: set[TrackRef] = set()
         self._cancelled: set[TrackRef] = set()
         self._failed: set[TrackRef] = set()
-        self._clock = clock
         self._catalog: GameCatalog | None = None
-        self._rankings: dict[RankingQuery, tuple[float, RankingsPage]] = {}
         self._ranked_refs: dict[RankingKey, TrackRef] = {}
         self._ranked_loading: set[RankingKey] = set()
         self._ranked_cancelled: set[RankingKey] = set()
@@ -287,14 +281,10 @@ class AppController(QObject):
         self._runner.run(lambda: fetch_catalog(self.client()), loaded, self.error.emit)
 
     def load_rankings(self, query: RankingQuery) -> None:
-        cached = self._rankings.get(query)
-        if cached is not None and self._clock() - cached[0] < RANKINGS_TTL_S:
-            self.rankings_loaded.emit(cached[1])
-            return
+        """Rankings are cached one hour by the client's SQLite cache."""
 
         def loaded(page: object) -> None:
             assert isinstance(page, RankingsPage)
-            self._rankings[query] = (self._clock(), page)
             self.message.emit(f"{len(page.entries)} classements chargés (page {query.page}).")
             self.rankings_loaded.emit(page)
 

@@ -13,6 +13,7 @@ from PySide6.QtWidgets import (
 )
 
 from wcl_notes import __version__
+from wcl_notes.cache.response_cache import ResponseCache
 from wcl_notes.ui.controller import AppController
 from wcl_notes.ui.copy_note_dialog import CopyNoteDialog
 from wcl_notes.ui.icons import IconProvider
@@ -36,8 +37,11 @@ class MainWindow(QMainWindow):
         icons: IconProvider,
         runner: TaskRunner,
         parent: QWidget | None = None,
+        *,
+        cache: ResponseCache | None = None,
     ) -> None:
         super().__init__(parent)
+        self._cache = cache
         self.setWindowTitle(self.tr("WoW Timeline Gatherer {version}").format(version=__version__))
         self.resize(1500, 860)
         self._controller = controller
@@ -111,7 +115,7 @@ class MainWindow(QMainWindow):
         CopyNoteDialog(self._controller, self._settings, parent=self).exec()
 
     def open_settings(self) -> None:
-        dialog = SettingsDialog(self._settings, self)
+        dialog = SettingsDialog(self._settings, self, cache=self._cache)
         if dialog.exec() and dialog.credentials_changed:
             self._controller.reset_client()
             self.statusBar().showMessage(self.tr("Identifiants enregistrés."), 5000)

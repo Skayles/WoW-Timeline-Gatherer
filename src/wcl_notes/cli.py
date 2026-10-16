@@ -15,6 +15,7 @@ from wcl_notes.api.client import WclClient
 from wcl_notes.api.credentials import load_credentials
 from wcl_notes.api.errors import WclError
 from wcl_notes.api.reports import fetch_pet_casts, fetch_player_casts, fetch_report
+from wcl_notes.cache.response_cache import ResponseCache, default_cache_path
 from wcl_notes.domain.models import Actor, Cast, Fight, Report, Track, TrackRef
 from wcl_notes.domain.names import character_name
 from wcl_notes.domain.spells import SpecSpells
@@ -92,6 +93,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--env-file", type=Path, default=Path(".env"), help="fichier .env (défaut : .env)"
     )
+    parser.add_argument(
+        "--no-cache", action="store_true", help="ignorer le cache local des réponses WCL"
+    )
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
 
@@ -102,7 +106,14 @@ def main(argv: Sequence[str] | None = None, *, client_factory: ClientFactory | N
     factory = client_factory or _default_client
     try:
         with factory(args) as client:
-            return _run(args, client)
+            code = _run(args, client)
+            if client.cache_hits:
+                print(
+                    f"# {client.cache_hits} réponse(s) lue(s) dans le cache local "
+                    "(aucun point API consommé).",
+                    file=sys.stderr,
+                )
+            return code
     except (WclError, InvalidReportReferenceError, NavigationError) as exc:
         print(f"Erreur : {exc}", file=sys.stderr)
         return 1
@@ -190,7 +201,8 @@ def _select_casts(
 
 
 def _default_client(args: argparse.Namespace) -> WclClient:
-    return WclClient(load_credentials(args.env_file))
+    cache = None if args.no_cache else ResponseCache(default_cache_path())
+    return WclClient(load_credentials(args.env_file), cache=cache)
 
 
 def _print_fights(report: Report) -> None:
