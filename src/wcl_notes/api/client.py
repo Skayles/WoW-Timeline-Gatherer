@@ -1,6 +1,7 @@
 """GraphQL client for the public WCL v2 endpoint. Queries live in ``queries/*.graphql``."""
 
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from importlib import resources
 from types import TracebackType
 from typing import Any, Self
@@ -18,8 +19,20 @@ from wcl_notes.api.errors import (
     WclError,
     WclNetworkError,
 )
+from wcl_notes.cache.response_cache import ResponseCache
 
 API_URL = "https://www.warcraftlogs.com/api/v2/client"
+
+
+@dataclass(frozen=True, slots=True)
+class CacheRule:
+    ttl_s: float | None
+    """Seconds before expiry; None = kept forever (immutable data)."""
+
+
+FOREVER = CacheRule(ttl_s=None)
+# A rule, or a function deciding from the response (e.g. "is this report finished?").
+CachePolicy = CacheRule | Callable[[dict[str, Any]], CacheRule | None] | None
 
 
 def load_query(name: str) -> str:
@@ -37,10 +50,13 @@ class WclClient:
         *,
         http: httpx.Client | None = None,
         timeout: float = 30.0,
+        cache: ResponseCache | None = None,
     ) -> None:
         self._http = http or httpx.Client(timeout=timeout)
         self._http.headers["User-Agent"] = f"wcl-notes/{__version__}"
         self._tokens = TokenProvider(credentials, self._http)
+        self._cache = cache
+        self.cache_hits = 0
 
     def __enter__(self) -> Self:
         return self
@@ -56,9 +72,29 @@ class WclClient:
     def close(self) -> None:
         self._http.close()
 
-    def execute(self, query_name: str, variables: Mapping[str, object]) -> dict[str, Any]:
-        """Run a named query and return its ``data``; raise a ``WclError`` otherwise."""
-        payload: dict[str, object] = {"query": load_query(query_name), "variables": dict(variables)}
+    def execute(
+        self, query_name: str, variables: Mapping[str, object], *, cache: CachePolicy = None
+    ) -> dict[str, Any]:
+        """Run a named query and return its ``data``; raise a ``WclError`` otherwise.
+
+        With a ``cache`` policy, a stored response is returned without any network call
+        (no API points spent), and a fresh one is stored according to the policy.
+        """
+        query = load_query(query_name)
+        key = ResponseCache.make_key(query, variables)
+        if self._cache is not None and cache is not None:
+            cached = self._cache.get(key)
+            if cached is not None:
+                self.cache_hits += 1
+                return cached
+        data = self._fetch({"query": query, "variables": dict(variables)})
+        if self._cache is not None and cache is not None:
+            rule = cache(data) if callable(cache) else cache
+            if rule is not None:
+                self._cache.put(key, query_name, data, rule.ttl_s)
+        return data
+
+    def _fetch(self, payload: dict[str, object]) -> dict[str, Any]:
         response = self._post(payload)
         if response.status_code == 401:
             # Token revoked or expired early: get a fresh one once.

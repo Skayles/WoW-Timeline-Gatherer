@@ -29,6 +29,7 @@ class FightModel(WclModel):
     name: str
     difficulty: int | None = None
     kill: bool | None = None
+    in_progress: bool | None = None
     start_time: float
     end_time: float
     boss_percentage: float | None = None

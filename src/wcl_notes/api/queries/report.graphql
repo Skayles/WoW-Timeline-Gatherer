@@ -5,12 +5,14 @@ query Report($code: String!) {
       code
       title
       startTime
+      endTime
       fights {
         id
         encounterID
         name
         difficulty
         kill
+        inProgress
         startTime
         endTime
         bossPercentage

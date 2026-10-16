@@ -1,11 +1,12 @@
 """High-level WCL fetches, mapped from pydantic responses to domain models."""
 
+import time
 from collections.abc import Iterable
 from typing import Any
 
 from pydantic import ValidationError
 
-from wcl_notes.api.client import WclClient
+from wcl_notes.api.client import FOREVER, CacheRule, WclClient
 from wcl_notes.api.errors import ReportNotFoundError, WclApiError
 from wcl_notes.api.models import (
     CastEventModel,
@@ -29,10 +30,22 @@ from wcl_notes.domain.models import (
 
 _MAX_PAGES = 200
 _CAST_KINDS = {kind.value: kind for kind in CastKind}
+# A report whose last event is older than this is finished: it will never change.
+REPORT_FINISHED_AFTER_S = 2 * 3600
+LIVE_REPORT_CACHE = CacheRule(ttl_s=300)
+
+
+def report_cache_rule(data: dict[str, Any], *, now_s: float | None = None) -> CacheRule:
+    report = (data.get("reportData") or {}).get("report") or {}
+    end_ms = report.get("endTime")
+    now_ms = (time.time() if now_s is None else now_s) * 1000
+    if isinstance(end_ms, int | float) and now_ms - end_ms > REPORT_FINISHED_AFTER_S * 1000:
+        return FOREVER
+    return LIVE_REPORT_CACHE
 
 
 def fetch_report(client: WclClient, code: str) -> Report:
-    data = client.execute("report", {"code": code})
+    data = client.execute("report", {"code": code}, cache=report_cache_rule)
     report = ReportQueryModel.model_validate(data).report_data.report
     if report is None:
         raise ReportNotFoundError("Ce report n'existe pas : vérifiez le code ou l'URL.")
@@ -54,7 +67,7 @@ _ROLE_KEYS = {"tanks": Role.TANK, "healers": Role.HEALER, "dps": Role.DPS}
 
 
 def fetch_player_roles(client: WclClient, code: str, fight: Fight) -> dict[int, Role]:
-    data = client.execute("player_details", {"code": code, "fightID": fight.id})
+    data = client.execute("player_details", {"code": code, "fightID": fight.id}, cache=FOREVER)
     raw = ((data.get("reportData") or {}).get("report") or {}).get("playerDetails")
     return parse_player_roles(raw)
 
@@ -90,6 +103,8 @@ def _fetch_paginated(
                 "startTime": start,
                 "endTime": fight.end_ms,
             },
+            # Events of a finished fight never change; a fight still in progress does.
+            cache=None if fight.in_progress else FOREVER,
         )
         report = EventsQueryModel.model_validate(data).report_data.report
         if report is None or report.events is None:
@@ -175,6 +190,7 @@ def _fight_from_model(f: FightModel) -> Fight:
         start_ms=round(f.start_time),
         end_ms=round(f.end_time),
         boss_percentage=f.boss_percentage,
+        in_progress=bool(f.in_progress),
         player_ids=tuple(f.friendly_players or ()),
         pets=tuple(
             FightPet(id=p.id, owner_id=p.pet_owner)

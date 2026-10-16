@@ -90,6 +90,7 @@ class Fight:
     player_ids: tuple[int, ...] = ()
     pets: tuple[FightPet, ...] = ()
     phase_transitions: tuple[PhaseTransition, ...] = ()
+    in_progress: bool = False
 
     @property
     def duration_ms(self) -> int:

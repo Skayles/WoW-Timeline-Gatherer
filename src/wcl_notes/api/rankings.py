@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from wcl_notes.api.client import WclClient
+from wcl_notes.api.client import CacheRule, WclClient
 from wcl_notes.api.errors import WclApiError
 from wcl_notes.domain.rankings import (
     EncounterRef,
@@ -19,6 +19,8 @@ from wcl_notes.domain.rankings import (
 
 MYTHIC_PLUS_DIFFICULTY = 10
 RANKINGS_PER_PAGE = 100
+RANKINGS_CACHE = CacheRule(ttl_s=3600)  # rankings move: refresh after an hour
+CATALOG_CACHE = CacheRule(ttl_s=24 * 3600)  # classes and raids change with a new tier
 
 
 class _Loose(BaseModel):
@@ -53,13 +55,13 @@ class _RankingModel(_Loose):
 
 def fetch_catalog(client: WclClient) -> GameCatalog:
     """Classes/specs, and the raids of the latest expansion (current tier first)."""
-    data = client.execute("game_catalog", {})
+    data = client.execute("game_catalog", {}, cache=CATALOG_CACHE)
     classes = parse_classes(((data.get("gameData") or {}).get("classes")) or [])
     expansions = ((data.get("worldData") or {}).get("expansions")) or []
     ids = [e["id"] for e in expansions if isinstance(e, dict) and isinstance(e.get("id"), int)]
     if not ids:
         raise WclApiError("Warcraft Logs n'a renvoyé aucune extension.")
-    zones = client.execute("raid_zones", {"expansionID": max(ids)})
+    zones = client.execute("raid_zones", {"expansionID": max(ids)}, cache=CATALOG_CACHE)
     raids = parse_raid_zones(((zones.get("worldData") or {}).get("zones")) or [])
     return GameCatalog(classes=classes, raids=raids)
 
@@ -123,6 +125,7 @@ def fetch_rankings(client: WclClient, query: RankingQuery) -> RankingsPage:
             "page": query.page,
             "serverRegion": query.region or "",
         },
+        cache=RANKINGS_CACHE,
     )
     encounter = (data.get("worldData") or {}).get("encounter")
     if not isinstance(encounter, dict):
