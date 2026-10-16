@@ -1,0 +1,24 @@
+# Casts (cast + begincast) of one player in one fight. Paginated: loop on nextPageTimestamp.
+# The Casts data type leaves out pets, see pet_casts.graphql.
+query PlayerCasts(
+  $code: String!
+  $fightID: Int!
+  $sourceID: Int!
+  $startTime: Float!
+  $endTime: Float!
+) {
+  reportData {
+    report(code: $code) {
+      events(
+        dataType: Casts
+        fightIDs: [$fightID]
+        sourceID: $sourceID
+        startTime: $startTime
+        endTime: $endTime
+      ) {
+        data
+        nextPageTimestamp
+      }
+    }
+  }
+}

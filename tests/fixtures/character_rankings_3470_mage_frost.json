@@ -1,0 +1,95 @@
+{
+ "data": {
+  "worldData": {
+   "encounter": {
+    "id": 3470,
+    "name": "Nek'zali the Soulcoiler",
+    "characterRankings": {
+     "page": 1,
+     "hasMorePages": true,
+     "count": 100,
+     "rankings": [
+      {
+       "name": "Classé1",
+       "class": "Mage",
+       "spec": "Frost",
+       "amount": 249277.97556297,
+       "hardModeLevel": 0,
+       "duration": 347178,
+       "startTime": 1792070952913,
+       "report": {
+        "code": "gtQBmXVDnHqYChRG",
+        "fightID": 23,
+        "startTime": 1792061907865
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 0
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "KR"
+       },
+       "bracketData": 331,
+       "faction": 0
+      },
+      {
+       "name": "Classé2",
+       "class": "Mage",
+       "spec": "Frost",
+       "amount": 244684.36820333,
+       "hardModeLevel": 0,
+       "duration": 375184,
+       "startTime": 1792069434119,
+       "report": {
+        "code": "Gkcy7DmQNzwZTxLt",
+        "fightID": 11,
+        "startTime": 1792065707058
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "CN"
+       },
+       "bracketData": 331,
+       "faction": 1
+      },
+      {
+       "name": "Classé3",
+       "class": "Mage",
+       "spec": "Frost",
+       "amount": 243747.14636747,
+       "hardModeLevel": 0,
+       "duration": 323535,
+       "startTime": 1791941567812,
+       "report": {
+        "code": "mYQgJGKV3fHFWqXd",
+        "fightID": 8,
+        "startTime": 1791939224742
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "US"
+       },
+       "bracketData": 331,
+       "faction": 0
+      }
+     ]
+    }
+   }
+  }
+ }
+}

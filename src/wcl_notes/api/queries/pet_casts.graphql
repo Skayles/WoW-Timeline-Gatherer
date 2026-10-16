@@ -1,0 +1,25 @@
+# Casts of one pet in one fight. The Casts data type returns nothing for pets, so query
+# every event type of that pet and keep casts with a filter expression.
+query PetCasts(
+  $code: String!
+  $fightID: Int!
+  $sourceID: Int!
+  $startTime: Float!
+  $endTime: Float!
+) {
+  reportData {
+    report(code: $code) {
+      events(
+        dataType: All
+        fightIDs: [$fightID]
+        sourceID: $sourceID
+        startTime: $startTime
+        endTime: $endTime
+        filterExpression: "type in (\"cast\", \"begincast\")"
+      ) {
+        data
+        nextPageTimestamp
+      }
+    }
+  }
+}

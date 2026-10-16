@@ -1,0 +1,53 @@
+# Fights, phases and master data of a report: everything needed to pick a fight and a player.
+query Report($code: String!) {
+  reportData {
+    report(code: $code) {
+      code
+      title
+      startTime
+      fights {
+        id
+        encounterID
+        name
+        difficulty
+        kill
+        startTime
+        endTime
+        bossPercentage
+        friendlyPlayers
+        friendlyPets {
+          id
+          petOwner
+        }
+        phaseTransitions {
+          id
+          startTime
+        }
+      }
+      phases {
+        encounterID
+        phases {
+          id
+          name
+          isIntermission
+        }
+      }
+      masterData {
+        actors {
+          id
+          name
+          server
+          type
+          subType
+          petOwner
+          icon
+        }
+        abilities {
+          gameID
+          name
+          icon
+        }
+      }
+    }
+  }
+}

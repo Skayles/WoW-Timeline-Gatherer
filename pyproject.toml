@@ -42,6 +42,7 @@ testpaths = ["tests"]
 
 [dependency-groups]
 dev = [
+    "graphql-core>=3.3.0",
     "mypy>=2.4.0",
     "pytest>=9.1.1",
     "ruff>=0.17.1",
