@@ -6,11 +6,11 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from PySide6.QtCore import QLibraryInfo, QLocale, QTranslator
+from PySide6.QtCore import QLibraryInfo, QLocale, QTimer, QTranslator
 from PySide6.QtWidgets import QApplication
 
 from wcl_notes.api.client import WclClient
-from wcl_notes.api.credentials import load_credentials
+from wcl_notes.api.credentials import has_credentials, load_credentials
 from wcl_notes.cache.response_cache import ResponseCache, default_cache_path
 from wcl_notes.ui.controller import AppController
 from wcl_notes.ui.icons import IconProvider
@@ -59,4 +59,6 @@ def main(argv: Sequence[str] | None = None) -> int:
     controller = AppController(runner, client_factory, parent=app, presets=settings)
     window = MainWindow(controller, settings, icons, runner, cache=cache)
     window.show()
+    if not has_credentials(Path(".env")):
+        QTimer.singleShot(0, window.ask_for_credentials)
     return app.exec()

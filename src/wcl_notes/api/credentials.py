@@ -55,9 +55,17 @@ def load_credentials(env_file: Path | None = Path(".env")) -> Credentials:
         return Credentials(stored_id, stored_secret)
 
     raise MissingCredentialsError(
-        "Identifiants Warcraft Logs introuvables : renseignez WCL_CLIENT_ID et "
-        "WCL_CLIENT_SECRET (variables d'environnement ou fichier .env)."
+        "Identifiants Warcraft Logs introuvables : renseignez-les dans Réglages "
+        "(ou WCL_CLIENT_ID et WCL_CLIENT_SECRET dans un fichier .env)."
     )
+
+
+def has_credentials(env_file: Path | None = Path(".env")) -> bool:
+    try:
+        load_credentials(env_file)
+    except MissingCredentialsError:
+        return False
+    return True
 
 
 def store_credentials(credentials: Credentials) -> None:

@@ -3,7 +3,7 @@ from pathlib import Path
 import keyring
 import pytest
 
-from wcl_notes.api.credentials import load_credentials, read_env_file
+from wcl_notes.api.credentials import has_credentials, load_credentials, read_env_file
 from wcl_notes.api.errors import MissingCredentialsError
 
 
@@ -47,3 +47,10 @@ def test_keyring_fallback(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> No
 def test_missing_everywhere(tmp_path: Path) -> None:
     with pytest.raises(MissingCredentialsError):
         load_credentials(tmp_path / "missing.env")
+
+
+def test_has_credentials(tmp_path: Path) -> None:
+    assert not has_credentials(tmp_path / "missing.env")
+    env = tmp_path / ".env"
+    env.write_text("WCL_CLIENT_ID=a\nWCL_CLIENT_SECRET=b\n", encoding="utf-8")
+    assert has_credentials(env)

@@ -114,6 +114,18 @@ class MainWindow(QMainWindow):
             return
         CopyNoteDialog(self._controller, self._settings, parent=self).exec()
 
+    def ask_for_credentials(self) -> None:
+        QMessageBox.information(
+            self,
+            self.tr("Bienvenue"),
+            self.tr(
+                "Pour lire les logs, l'application a besoin d'un client API Warcraft Logs "
+                "(Client ID et Client Secret, à créer sur warcraftlogs.com/api/clients). "
+                "Renseignez-les dans les réglages qui vont s'ouvrir."
+            ),
+        )
+        self.open_settings()
+
     def open_settings(self) -> None:
         dialog = SettingsDialog(self._settings, self, cache=self._cache)
         if dialog.exec() and dialog.credentials_changed:
