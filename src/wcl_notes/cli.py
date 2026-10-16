@@ -19,6 +19,7 @@ from wcl_notes.domain.models import Actor, Cast, Fight, Report, Track, TrackRef
 from wcl_notes.domain.names import character_name
 from wcl_notes.domain.spells import SpecSpells
 from wcl_notes.exporters.mrt import format_mrt_time
+from wcl_notes.labels import difficulty_label, fight_label, format_duration, spec_label
 from wcl_notes.services.data_files import load_spec_spells, spec_file_name
 from wcl_notes.services.notes import NoteAssignment, NoteFormat, NoteOptions, build_note
 from wcl_notes.services.report_navigation import (
@@ -37,7 +38,6 @@ from wcl_notes.services.report_reference import (
 from wcl_notes.services.timeline import build_casts, spell_counts
 
 DEFAULT_PLAYER_NAME = "Kràùck"
-DIFFICULTY_LABELS = {1: "LFR", 3: "Normal", 4: "Héroïque", 5: "Mythique", 10: "Mythique+"}
 
 ClientFactory = Callable[[argparse.Namespace], WclClient]
 
@@ -140,7 +140,7 @@ def _run(args: argparse.Namespace, client: WclClient) -> int:
 
     casts = _select_casts(casts, args, player, spec_spells)
     print(
-        f"# Source : {player.name} ({_spec_label(player)}) — {_fight_label(fight)} — "
+        f"# Source : {player.name} ({spec_label(player)}) — {fight_label(fight)} — "
         f"{len(casts)} casts. Adaptez à votre compo et à votre temps de kill.",
         file=sys.stderr,
     )
@@ -176,13 +176,13 @@ def _select_casts(
     if spec_spells is None:
         wanted = spec_file_name(player.sub_type, player.spec or "?")
         print(
-            f"# Pas de liste de sorts pour {_spec_label(player)} (data/spells/{wanted}) : "
+            f"# Pas de liste de sorts pour {spec_label(player)} (data/spells/{wanted}) : "
             "tous les casts sont gardés, filtrez avec --spells.",
             file=sys.stderr,
         )
         return casts
     print(
-        f"# Filtre : sorts importants {_spec_label(player)} (--all pour tout garder).",
+        f"# Filtre : sorts importants {spec_label(player)} (--all pour tout garder).",
         file=sys.stderr,
     )
     selected = spec_spells.default_ids()
@@ -203,8 +203,8 @@ def _print_fights(report: Report) -> None:
     for fight in fights:
         outcome = "kill" if fight.kill else "wipe"
         line = (
-            f"  {fight.id:>4}  {fight.name:<{width}}  {_difficulty(fight):<9} "
-            f"{outcome}  {_duration(fight.duration_ms):>6}"
+            f"  {fight.id:>4}  {fight.name:<{width}}  {difficulty_label(fight.difficulty):<9} "
+            f"{outcome}  {format_duration(fight.duration_ms):>6}"
         )
         if not fight.kill and fight.boss_percentage is not None:
             line += f"  (boss à {fight.boss_percentage:.1f} %)"
@@ -213,10 +213,10 @@ def _print_fights(report: Report) -> None:
 
 
 def _print_players(report: Report, fight: Fight, players: list[Actor]) -> None:
-    print(f"Joueurs du fight #{fight.id} — {_fight_label(fight)} :")
+    print(f"Joueurs du fight #{fight.id} — {fight_label(fight)} :")
     width = max((len(p.name) for p in players), default=0)
     for player in players:
-        print(f"  {player.id:>4}  {player.name:<{width}}  {_spec_label(player)}")
+        print(f"  {player.id:>4}  {player.name:<{width}}  {spec_label(player)}")
     print("→ Relancez avec --player <nom ou id>.")
 
 
@@ -242,26 +242,6 @@ def _print_summary(
     if selected:
         print("★ = gardé par défaut dans la note.")
     print("→ Choisissez les sorts avec --spells <id>,<id>,… (ou --all pour tout garder)")
-
-
-def _fight_label(fight: Fight) -> str:
-    outcome = "kill" if fight.kill else "wipe"
-    return f"{fight.name} ({_difficulty(fight)}, {outcome}, {_duration(fight.duration_ms)})"
-
-
-def _spec_label(actor: Actor) -> str:
-    return f"{actor.sub_type} {actor.spec}" if actor.spec else actor.sub_type
-
-
-def _difficulty(fight: Fight) -> str:
-    if fight.difficulty is None:
-        return "?"
-    return DIFFICULTY_LABELS.get(fight.difficulty, str(fight.difficulty))
-
-
-def _duration(ms: int) -> str:
-    minutes, seconds = divmod(round(ms / 1000), 60)
-    return f"{minutes}:{seconds:02d}"
 
 
 def _fight_arg(value: str) -> FightSelector:
