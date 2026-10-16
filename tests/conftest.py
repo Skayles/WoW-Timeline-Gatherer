@@ -1,6 +1,7 @@
 """Shared test helpers: recorded WCL fixtures and an offline fake of the WCL API."""
 
 import json
+import os
 import re
 from collections.abc import Callable
 from pathlib import Path
@@ -17,6 +18,9 @@ from wcl_notes.api.reports import parse_cast_events, report_from_model
 from wcl_notes.domain.models import Report, Track, TrackRef
 from wcl_notes.services.report_navigation import resolve_fight
 from wcl_notes.services.timeline import build_casts
+
+# UI tests never open real windows.
+os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 FIXTURES = Path(__file__).parent / "fixtures"
 GOLDEN = Path(__file__).parent / "golden"

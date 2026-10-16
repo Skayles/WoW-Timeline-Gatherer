@@ -49,7 +49,9 @@ def test_adding_twice_keeps_one_track(workspace: Workspace, rogue_track: Track) 
     assert len(workspace.entries) == 1
 
 
-def test_tracks_get_distinct_colors(workspace: Workspace, mage_track: Track, report: Report):
+def test_tracks_get_distinct_colors(
+    workspace: Workspace, mage_track: Track, report: Report
+) -> None:
     workspace.add(mage_track, spells=report.spells)
     assert len({e.color for e in workspace.entries}) == 2
 
@@ -105,7 +107,9 @@ def test_clear_keeps_the_show_all_switch(workspace: Workspace) -> None:
     assert workspace.selection.included_spells == set()
 
 
-def test_raid_note_mrt_merges_players(workspace: Workspace, mage_track: Track, report: Report):
+def test_raid_note_mrt_merges_players(
+    workspace: Workspace, mage_track: Track, report: Report
+) -> None:
     workspace.add(mage_track, spells=report.spells)
     rogue_ref = workspace.entries[0].ref
     mage_ref = TrackRef(REPORT_CODE, 7, MAGE_ID)

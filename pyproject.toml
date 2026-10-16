@@ -31,11 +31,20 @@ src = ["src", "tests"]
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "SIM", "RUF"]
 
+[tool.ruff.lint.per-file-ignores]
+# Qt event handlers must keep their camelCase names (mousePressEvent, wheelEvent…).
+"src/wcl_notes/ui/*" = ["N802"]
+
 [tool.mypy]
 strict = true
 python_version = "3.12"
 mypy_path = "src"
 plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# pytest-qt's QtBot helpers are not annotated.
+module = ["test_ui"]
+disallow_untyped_calls = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
