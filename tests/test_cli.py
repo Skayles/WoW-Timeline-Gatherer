@@ -36,7 +36,9 @@ def test_lists_players_of_the_fight(fake_wcl: FakeWcl, capsys: pytest.CaptureFix
 
 
 def test_note_for_selected_spells(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
-    code = run(fake_wcl, f"{URL}#fight=7&source=126", "--spells", "360194,385627,1856")
+    code = run(
+        fake_wcl, f"{URL}#fight=7&source=126", "--spells", "360194,385627,1856", "-n", "Kràùck"
+    )
     assert code == 0
     captured = capsys.readouterr()
     assert captured.out == read_golden("mrt_rogue_cooldowns.txt")
@@ -78,7 +80,8 @@ def test_invalid_reference(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]
 
 
 def test_nsrt_note(fake_wcl: FakeWcl, capsys: pytest.CaptureFixture[str]) -> None:
-    assert run(fake_wcl, f"{URL}#fight=7&source=126", "-F", "nsrt", "-s", "360194,385627,1856") == 0
+    args = ("-F", "nsrt", "-s", "360194,385627,1856", "-n", "Kràùck")
+    assert run(fake_wcl, f"{URL}#fight=7&source=126", *args) == 0
     captured = capsys.readouterr()
     assert captured.out == read_golden("nsrt_rogue_nekzali.txt")
     assert "Phases NSRT : 1 à 00:00.0, 1.5 à 02:19.4, 2 à 03:50.8" in captured.err

@@ -23,7 +23,7 @@ from wcl_notes.ui.legend_panel import SPELL_ID_ROLE, LegendPanel
 from wcl_notes.ui.log_panel import ID_ROLE, LogPanel
 from wcl_notes.ui.main_window import MainWindow
 from wcl_notes.ui.rankings_panel import RankingsPanel
-from wcl_notes.ui.settings import DEFAULT_PLAYER_NAME, AppSettings
+from wcl_notes.ui.settings import AppSettings
 from wcl_notes.ui.timeline_view import LABEL_WIDTH, MAX_PX_PER_S, TimelineView
 from wcl_notes.ui.tracks_panel import TracksPanel
 from wcl_notes.ui.workers import TaskRunner
@@ -81,11 +81,11 @@ def _add(controller: AppController, report: Report, source_id: int, fight_id: in
 
 
 def test_settings_defaults_and_recent_reports(settings: AppSettings) -> None:
-    assert settings.player_name == DEFAULT_PLAYER_NAME
-    assert settings.my_spec == "Rogue-Assassination"
+    # Nothing about the author: name and spec are filled in by each user.
+    assert (settings.player_name, settings.my_spec) == ("", "")
     assert (settings.note_format, settings.offset_s, settings.nsrt_dur) == ("mrt", 0.0, 0)
-    settings.player_name = "  "
-    assert settings.player_name == DEFAULT_PLAYER_NAME
+    settings.player_name = "  Kràùck "
+    assert settings.player_name == "Kràùck"
     for i in range(12):
         settings.add_recent_report(f"code{i}", f"Raid {i}")
     settings.add_recent_report("code3", "Raid 3")
@@ -192,7 +192,10 @@ def test_log_panel_shortcuts(
     qtbot.addWidget(panel)
     panel.input.setEditText(f"{URL}#fight=7")
     panel.load()
-    panel.my_spec_button.click()  # Rogue-Assassination
+    panel.my_spec_button.click()  # no spec in the settings yet: nothing ticked
+    assert controller.workspace.entries == []
+    settings.my_spec = "Rogue-Assassination"
+    panel.my_spec_button.click()
     assert [e.ref.source_id for e in controller.workspace.entries] == [ROGUE_ID]
     settings.player_name = "Givrâme"
     panel.me_button.click()
@@ -293,9 +296,10 @@ def test_copy_note_dialog_matches_the_note_service(
     qtbot: QtBot, controller: AppController, settings: AppSettings
 ) -> None:
     _add(controller, _load(controller), ROGUE_ID)
+    settings.player_name = "Kràùck"
     dialog = CopyNoteDialog(controller, settings)
     qtbot.addWidget(dialog)
-    assignments = controller.workspace.note_assignments([(ROGUE_REF, DEFAULT_PLAYER_NAME)])
+    assignments = controller.workspace.note_assignments([(ROGUE_REF, "Kràùck")])
     assert dialog.preview.toPlainText() == build_note(assignments, NoteOptions()).text
 
     dialog.nsrt.setChecked(True)
@@ -368,10 +372,21 @@ def test_icon_provider_uses_the_disk_cache(tmp_path: Path) -> None:
 def rankings_panel(
     qtbot: QtBot, controller: AppController, settings: AppSettings, icons: IconProvider
 ) -> RankingsPanel:
+    settings.my_spec = "Rogue-Assassination"
     panel = RankingsPanel(controller, settings, icons)
     qtbot.addWidget(panel)
     panel.ensure_catalog()
     return panel
+
+
+def test_copy_note_without_a_name_keeps_the_source_player(
+    qtbot: QtBot, controller: AppController, settings: AppSettings
+) -> None:
+    _add(controller, _load(controller), ROGUE_ID)
+    dialog = CopyNoteDialog(controller, settings)
+    qtbot.addWidget(dialog)
+    assert dialog.targets() == [(ROGUE_REF, "Vénéfique")]
+    assert "Vénéfique {spell:" in dialog.preview.toPlainText()
 
 
 def test_rankings_panel_prefills_my_spec(rankings_panel: RankingsPanel) -> None:
