@@ -1,12 +1,23 @@
-"""Spell icons from the WCL CDN (file names come from ``masterData.abilities.icon``)."""
+"""Icons from the WCL CDN.
+
+Spell icons: file names from ``masterData.abilities.icon`` ("ability_rogue_deathmark.jpg").
+Spec icons: actor icon + ".jpg" ("Rogue-Assassination.jpg").
+"""
 
 import re
+from enum import StrEnum
 
 import httpx
 
 from wcl_notes.api.errors import WclNetworkError
 
-ICON_CDN = "https://assets.rpglogs.com/img/warcraft/abilities/"
+
+class IconKind(StrEnum):
+    ABILITY = "abilities"
+    SPEC = "icons"
+
+
+ICON_CDN = "https://assets.rpglogs.com/img/warcraft/"
 _SAFE_ICON = re.compile(r"^[A-Za-z0-9_.-]+$")
 
 
@@ -14,11 +25,15 @@ def is_safe_icon_name(name: str) -> bool:
     return bool(_SAFE_ICON.match(name)) and ".." not in name
 
 
-def download_icon(name: str, *, timeout: float = 15.0) -> bytes:
+def icon_url(name: str, kind: IconKind = IconKind.ABILITY) -> str:
+    return f"{ICON_CDN}{kind.value}/{name}"
+
+
+def download_icon(name: str, kind: IconKind = IconKind.ABILITY, *, timeout: float = 15.0) -> bytes:
     if not is_safe_icon_name(name):
         raise ValueError(f"Nom d'icône invalide : {name!r}")
     try:
-        response = httpx.get(ICON_CDN + name, timeout=timeout, follow_redirects=True)
+        response = httpx.get(icon_url(name, kind), timeout=timeout, follow_redirects=True)
     except httpx.HTTPError as exc:
         raise WclNetworkError(f"Icône {name} indisponible : {exc}") from exc
     if response.status_code != 200:
