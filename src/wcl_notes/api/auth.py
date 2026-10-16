@@ -1,5 +1,6 @@
 """OAuth client-credentials token, cached in memory until it expires."""
 
+import threading
 import time
 from collections.abc import Callable
 
@@ -25,15 +26,19 @@ class TokenProvider:
         self._clock = clock
         self._token: str | None = None
         self._expires_at = 0.0
+        self._lock = threading.Lock()
 
     def token(self) -> str:
-        if self._token is None or self._clock() >= self._expires_at:
-            self._token, lifetime = self._request_token()
-            self._expires_at = self._clock() + max(lifetime - _EXPIRY_MARGIN_S, 0.0)
-        return self._token
+        # The UI runs requests from a thread pool: fetch the token only once.
+        with self._lock:
+            if self._token is None or self._clock() >= self._expires_at:
+                self._token, lifetime = self._request_token()
+                self._expires_at = self._clock() + max(lifetime - _EXPIRY_MARGIN_S, 0.0)
+            return self._token
 
     def invalidate(self) -> None:
-        self._token = None
+        with self._lock:
+            self._token = None
 
     def _request_token(self) -> tuple[str, float]:
         try:

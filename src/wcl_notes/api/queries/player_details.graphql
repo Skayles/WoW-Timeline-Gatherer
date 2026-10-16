@@ -1,0 +1,9 @@
+# Roles and specs of the players of one fight. playerDetails is raw JSON:
+# {"data": {"playerDetails": {"tanks": [...], "healers": [...], "dps": [...]}}}
+query PlayerDetails($code: String!, $fightID: Int!) {
+  reportData {
+    report(code: $code) {
+      playerDetails(fightIDs: [$fightID])
+    }
+  }
+}

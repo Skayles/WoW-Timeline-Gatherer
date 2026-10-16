@@ -23,6 +23,7 @@ from wcl_notes.domain.models import (
     PhaseInfo,
     PhaseTransition,
     Report,
+    Role,
     Spell,
 )
 
@@ -47,6 +48,31 @@ def fetch_player_casts(
 
 def fetch_pet_casts(client: WclClient, code: str, fight: Fight, pet_id: int) -> list[CastEvent]:
     return _fetch_paginated(client, "pet_casts", code, fight, pet_id)
+
+
+_ROLE_KEYS = {"tanks": Role.TANK, "healers": Role.HEALER, "dps": Role.DPS}
+
+
+def fetch_player_roles(client: WclClient, code: str, fight: Fight) -> dict[int, Role]:
+    data = client.execute("player_details", {"code": code, "fightID": fight.id})
+    raw = ((data.get("reportData") or {}).get("report") or {}).get("playerDetails")
+    return parse_player_roles(raw)
+
+
+def parse_player_roles(raw: Any) -> dict[int, Role]:
+    """``playerDetails`` is untyped JSON: read it defensively, unknown shapes give {}."""
+    details = raw.get("data", {}).get("playerDetails") if isinstance(raw, dict) else None
+    roles: dict[int, Role] = {}
+    if not isinstance(details, dict):
+        return roles
+    for key, role in _ROLE_KEYS.items():
+        players = details.get(key)
+        if not isinstance(players, list):
+            continue
+        for player in players:
+            if isinstance(player, dict) and isinstance(player.get("id"), int):
+                roles[player["id"]] = role
+    return roles
 
 
 def _fetch_paginated(

@@ -1,0 +1,420 @@
+{
+ "data": {
+  "reportData": {
+   "report": {
+    "playerDetails": {
+     "data": {
+      "playerDetails": {
+       "healers": [
+        {
+         "name": "Joueur7",
+         "id": 7,
+         "guid": 0,
+         "type": "Shaman",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Shaman-Restoration",
+         "specs": [
+          {
+           "spec": "Restoration",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 322,
+         "maxItemLevel": 322,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur116",
+         "id": 116,
+         "guid": 0,
+         "type": "Priest",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Priest-Holy",
+         "specs": [
+          {
+           "spec": "Holy",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur136",
+         "id": 136,
+         "guid": 0,
+         "type": "Priest",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Priest-Holy",
+         "specs": [
+          {
+           "spec": "Holy",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 322,
+         "maxItemLevel": 322,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur141",
+         "id": 141,
+         "guid": 0,
+         "type": "Paladin",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Paladin-Holy",
+         "specs": [
+          {
+           "spec": "Holy",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        }
+       ],
+       "tanks": [
+        {
+         "name": "Joueur115",
+         "id": 115,
+         "guid": 0,
+         "type": "Druid",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Druid-Guardian",
+         "specs": [
+          {
+           "spec": "Guardian",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur5",
+         "id": 5,
+         "guid": 0,
+         "type": "Druid",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Druid-Guardian",
+         "specs": [
+          {
+           "spec": "Guardian",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 321,
+         "maxItemLevel": 321,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        }
+       ],
+       "dps": [
+        {
+         "name": "Joueur132",
+         "id": 132,
+         "guid": 0,
+         "type": "Rogue",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Rogue-Assassination",
+         "specs": [
+          {
+           "spec": "Assassination",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur22",
+         "id": 22,
+         "guid": 0,
+         "type": "Druid",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Druid-Balance",
+         "specs": [
+          {
+           "spec": "Balance",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 326,
+         "maxItemLevel": 326,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Givrâme",
+         "id": 118,
+         "guid": 0,
+         "type": "Mage",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Mage-Frost",
+         "specs": [
+          {
+           "spec": "Frost",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 329,
+         "maxItemLevel": 329,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur16",
+         "id": 16,
+         "guid": 0,
+         "type": "Hunter",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Hunter-Marksmanship",
+         "specs": [
+          {
+           "spec": "Marksmanship",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 319,
+         "maxItemLevel": 319,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur117",
+         "id": 117,
+         "guid": 0,
+         "type": "Shaman",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Shaman-Elemental",
+         "specs": [
+          {
+           "spec": "Elemental",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 325,
+         "maxItemLevel": 325,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur1",
+         "id": 1,
+         "guid": 0,
+         "type": "Warlock",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Warlock-Demonology",
+         "specs": [
+          {
+           "spec": "Demonology",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 320,
+         "maxItemLevel": 320,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur119",
+         "id": 119,
+         "guid": 0,
+         "type": "Mage",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Mage-Arcane",
+         "specs": [
+          {
+           "spec": "Arcane",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 327,
+         "maxItemLevel": 327,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur140",
+         "id": 140,
+         "guid": 0,
+         "type": "DemonHunter",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "DemonHunter-Havoc",
+         "specs": [
+          {
+           "spec": "Havoc",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 329,
+         "maxItemLevel": 329,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur135",
+         "id": 135,
+         "guid": 0,
+         "type": "Warrior",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Warrior-Arms",
+         "specs": [
+          {
+           "spec": "Arms",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur143",
+         "id": 143,
+         "guid": 0,
+         "type": "Monk",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Monk-Windwalker",
+         "specs": [
+          {
+           "spec": "Windwalker",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 331,
+         "maxItemLevel": 331,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Vénéfique",
+         "id": 126,
+         "guid": 0,
+         "type": "Rogue",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Rogue-Assassination",
+         "specs": [
+          {
+           "spec": "Assassination",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 328,
+         "maxItemLevel": 328,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur20",
+         "id": 20,
+         "guid": 0,
+         "type": "Druid",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Druid-Feral",
+         "specs": [
+          {
+           "spec": "Feral",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 323,
+         "maxItemLevel": 323,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur8",
+         "id": 8,
+         "guid": 0,
+         "type": "DeathKnight",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "DeathKnight-Frost",
+         "specs": [
+          {
+           "spec": "Frost",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 325,
+         "maxItemLevel": 325,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        },
+        {
+         "name": "Joueur114",
+         "id": 114,
+         "guid": 0,
+         "type": "Mage",
+         "server": "Ysondre",
+         "region": "EU",
+         "icon": "Mage-Arcane",
+         "specs": [
+          {
+           "spec": "Arcane",
+           "count": 1
+          }
+         ],
+         "minItemLevel": 330,
+         "maxItemLevel": 330,
+         "potionUse": 0,
+         "healthstoneUse": 0,
+         "combatantInfo": []
+        }
+       ]
+      }
+     }
+    }
+   }
+  }
+ }
+}
