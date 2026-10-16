@@ -1,0 +1,12 @@
+EncounterID:3470;Name:Nek'zali the Soulcoiler;Difficulty:Mythic
+tag:Kràùck;time:18.9;spellid:1856;ph:1
+tag:Kràùck;time:22.3;spellid:360194;ph:1
+tag:Kràùck;time:23.3;spellid:385627;ph:1
+tag:Kràùck;time:89.6;spellid:385627;ph:1
+tag:Kràùck;time:6.3;spellid:1856;ph:1.5
+tag:Kràùck;time:9.9;spellid:360194;ph:1.5
+tag:Kràùck;time:12.0;spellid:385627;ph:1.5
+tag:Kràùck;time:72.3;spellid:385627;ph:1.5
+tag:Kràùck;time:77.0;spellid:1856;ph:2
+tag:Kràùck;time:81.5;spellid:360194;ph:2
+tag:Kràùck;time:82.5;spellid:385627;ph:2

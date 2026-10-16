@@ -130,6 +130,16 @@ class Cast:
 
 
 @dataclass(frozen=True, slots=True)
+class PhasedCast:
+    """A cast expressed in an NSRT phase: time relative to the start of that phase."""
+
+    phase: float
+    time_ms: int
+    spell_id: int
+    source_id: int
+
+
+@dataclass(frozen=True, slots=True)
 class TrackRef:
     report_code: str
     fight_id: int
