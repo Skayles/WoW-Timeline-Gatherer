@@ -1,0 +1,7 @@
+# Spells shared by every spec (potions, current-tier trinkets), merged into each spec file.
+# IDs and names checked against WCL masterData.abilities (The Venomous Abyss logs, 2026-10).
+spells:
+  - {id: 1236994, name: Potion of Recklessness, category: consumable, selected_by_default: true}
+  - {id: 1295247, name: Concentrated Silvermoon Health Potion, category: consumable}
+  - {id: 1297761, name: "Voracious Heart of Ula'tek", category: trinket, selected_by_default: true}
+  - {id: 1297908, name: Font of Venomous Rage, category: trinket, selected_by_default: true}

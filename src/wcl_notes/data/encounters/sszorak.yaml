@@ -1,0 +1,11 @@
+encounter_id: 3420
+name: Sszorak
+zone: The Venomous Abyss
+wcl_phases:
+  1: Sszorak
+  2: Howling Maelstrom
+nsrt:
+  strategy: single
+  status: verified
+  note: WCL alterne Sszorak / Howling Maelstrom mais NSRT ne détecte aucune phase.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) (aucun DetectPhaseChange)"

@@ -1,0 +1,16 @@
+encounter_id: 3470
+name: Nek'zali the Soulcoiler
+zone: The Venomous Abyss
+wcl_phases:
+  1: "Stage One: Soulcoiler Initiation"
+  2: "Intermission: Ritual of Awakening"
+  3: "Stage Two: Uncoiling"
+nsrt:
+  strategy: map
+  status: approximate
+  phases: {1: 1, 2: 1.5, 3: 2}
+  note: >-
+    NSRT démarre sa phase 1.5 sur le canal Soul Transfer, une dizaine de secondes avant
+    l'intermission WCL, puis la coupe en 1.75 sur une incantation d'add absente de WCL :
+    les reminders placés tard dans l'intermission risquent de ne pas s'afficher.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) EncounterAlerts/MidnightS2/NekzaliTheSoulcoiler.lua"

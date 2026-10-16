@@ -1,0 +1,13 @@
+encounter_id: 3492
+name: Ula'tek
+zone: The Venomous Abyss
+wcl_phases:
+  1: "Stage One: Fury of the Serpent Mother"
+  2: "Stage Two: Children of the Doomscale"
+  3: "Intermission: The Shattering"
+  4: "Stage Three: Ula'tek's Ascension"
+nsrt:
+  strategy: single
+  status: verified
+  note: WCL découpe 4 phases mais NSRT ne détecte aucune phase sur ce boss.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) (aucun DetectPhaseChange)"

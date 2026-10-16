@@ -1,0 +1,8 @@
+encounter_id: 3455
+name: Vashnik the Malignant
+zone: The Venomous Abyss
+nsrt:
+  strategy: single
+  status: verified
+  note: NSRT ne détecte aucune phase sur ce boss.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) (aucun DetectPhaseChange)"

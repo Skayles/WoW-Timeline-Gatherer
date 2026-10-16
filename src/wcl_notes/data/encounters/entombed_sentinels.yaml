@@ -1,0 +1,14 @@
+encounter_id: 3445
+name: Entombed Sentinels
+zone: The Venomous Abyss
+wcl_phases:
+  1: "Stage One: Entombed Sentinels"
+  2: "Intermission: Vitriolic Stasis"
+nsrt:
+  strategy: count
+  status: verified
+  count_on: [1]
+  note: >-
+    NSRT passe à la phase suivante à chaque retour en Stage One (fin d'intermission) ;
+    l'intermission reste dans la phase précédente. Même numérotation que Lorrgs.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) EncounterAlerts/MidnightS2/EntombedSentinels.lua"

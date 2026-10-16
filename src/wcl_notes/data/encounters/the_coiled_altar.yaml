@@ -1,0 +1,14 @@
+encounter_id: 3429
+name: The Coiled Altar
+zone: The Venomous Abyss
+wcl_phases:
+  1: "Stage One: Serpent's Bargain"
+  2: "Stage Two: Usurper's Reprisal"
+  3: "Intermission: The Claimed Vessel"
+  4: "Stage Three: Coiled Union"
+nsrt:
+  strategy: map
+  status: verified
+  phases: {1: 1, 2: 2, 3: 2.5, 4: 3}
+  note: NSRT numérote l'intermission 2.5 et la Stage Three 3.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) EncounterAlerts/MidnightS2/TheCoiledAltar.lua"

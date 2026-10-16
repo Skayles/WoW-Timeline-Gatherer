@@ -1,0 +1,16 @@
+encounter_id: 3497
+name: The Lost Explorers
+zone: The Venomous Abyss
+wcl_phases:
+  1: The Lost Explorers
+  2: "Scrollsage Iku: Binding Anguish"
+  3: "First Mate Nama: Binding Anguish"
+  4: "Trader Gebbo: Binding Anguish"
+nsrt:
+  strategy: count
+  status: verified
+  count_on: [2, 3, 4]
+  note: >-
+    NSRT passe à la phase suivante au début de chaque Binding Anguish (l'ordre des
+    explorateurs varie) ; les retours à la phase commune ne changent pas de phase.
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) EncounterAlerts/MidnightS2/TheLostExplorers.lua"

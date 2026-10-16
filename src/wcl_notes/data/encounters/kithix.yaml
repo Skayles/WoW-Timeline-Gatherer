@@ -1,0 +1,11 @@
+encounter_id: 3513
+name: Kith'ix
+zone: The Venomous Abyss
+wcl_phases:
+  1: "Stage One: Darkness' Domain"
+  2: "Stage Two: Last Light"
+nsrt:
+  strategy: map
+  status: verified
+  phases: {1: 1, 2: 2}
+  source: "NorthernSkyRaidTools@94a1c01 (2026-10-15) EncounterAlerts/MidnightS2/Kithix.lua"
