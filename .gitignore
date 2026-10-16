@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Build (PyInstaller)
+build/
+dist/
+
+# Secrets: never commit WCL credentials or tokens
+.env
+.env.*
+
+# Local SQLite cache
+*.sqlite
+*.sqlite3
+*.db
+
+# IDE / OS
+.vscode/
+.idea/
+Thumbs.db
