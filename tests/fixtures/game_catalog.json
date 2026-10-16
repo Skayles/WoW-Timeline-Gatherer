@@ -1,0 +1,335 @@
+{
+ "data": {
+  "gameData": {
+   "classes": [
+    {
+     "id": 1,
+     "name": "Death Knight",
+     "slug": "DeathKnight",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Blood",
+       "slug": "Blood"
+      },
+      {
+       "id": 2,
+       "name": "Frost",
+       "slug": "Frost"
+      },
+      {
+       "id": 3,
+       "name": "Unholy",
+       "slug": "Unholy"
+      }
+     ]
+    },
+    {
+     "id": 2,
+     "name": "Druid",
+     "slug": "Druid",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Balance",
+       "slug": "Balance"
+      },
+      {
+       "id": 2,
+       "name": "Feral",
+       "slug": "Feral"
+      },
+      {
+       "id": 3,
+       "name": "Guardian",
+       "slug": "Guardian"
+      },
+      {
+       "id": 4,
+       "name": "Restoration",
+       "slug": "Restoration"
+      }
+     ]
+    },
+    {
+     "id": 3,
+     "name": "Hunter",
+     "slug": "Hunter",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Beast Mastery",
+       "slug": "BeastMastery"
+      },
+      {
+       "id": 2,
+       "name": "Marksmanship",
+       "slug": "Marksmanship"
+      },
+      {
+       "id": 3,
+       "name": "Survival",
+       "slug": "Survival"
+      }
+     ]
+    },
+    {
+     "id": 4,
+     "name": "Mage",
+     "slug": "Mage",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Arcane",
+       "slug": "Arcane"
+      },
+      {
+       "id": 2,
+       "name": "Fire",
+       "slug": "Fire"
+      },
+      {
+       "id": 3,
+       "name": "Frost",
+       "slug": "Frost"
+      }
+     ]
+    },
+    {
+     "id": 5,
+     "name": "Monk",
+     "slug": "Monk",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Brewmaster",
+       "slug": "Brewmaster"
+      },
+      {
+       "id": 2,
+       "name": "Mistweaver",
+       "slug": "Mistweaver"
+      },
+      {
+       "id": 3,
+       "name": "Windwalker",
+       "slug": "Windwalker"
+      }
+     ]
+    },
+    {
+     "id": 6,
+     "name": "Paladin",
+     "slug": "Paladin",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Holy",
+       "slug": "Holy"
+      },
+      {
+       "id": 2,
+       "name": "Protection",
+       "slug": "Protection"
+      },
+      {
+       "id": 3,
+       "name": "Retribution",
+       "slug": "Retribution"
+      }
+     ]
+    },
+    {
+     "id": 7,
+     "name": "Priest",
+     "slug": "Priest",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Discipline",
+       "slug": "Discipline"
+      },
+      {
+       "id": 2,
+       "name": "Holy",
+       "slug": "Holy"
+      },
+      {
+       "id": 3,
+       "name": "Shadow",
+       "slug": "Shadow"
+      }
+     ]
+    },
+    {
+     "id": 8,
+     "name": "Rogue",
+     "slug": "Rogue",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Assassination",
+       "slug": "Assassination"
+      },
+      {
+       "id": 3,
+       "name": "Subtlety",
+       "slug": "Subtlety"
+      },
+      {
+       "id": 4,
+       "name": "Outlaw",
+       "slug": "Outlaw"
+      }
+     ]
+    },
+    {
+     "id": 9,
+     "name": "Shaman",
+     "slug": "Shaman",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Elemental",
+       "slug": "Elemental"
+      },
+      {
+       "id": 2,
+       "name": "Enhancement",
+       "slug": "Enhancement"
+      },
+      {
+       "id": 3,
+       "name": "Restoration",
+       "slug": "Restoration"
+      }
+     ]
+    },
+    {
+     "id": 10,
+     "name": "Warlock",
+     "slug": "Warlock",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Affliction",
+       "slug": "Affliction"
+      },
+      {
+       "id": 2,
+       "name": "Demonology",
+       "slug": "Demonology"
+      },
+      {
+       "id": 3,
+       "name": "Destruction",
+       "slug": "Destruction"
+      }
+     ]
+    },
+    {
+     "id": 11,
+     "name": "Warrior",
+     "slug": "Warrior",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Arms",
+       "slug": "Arms"
+      },
+      {
+       "id": 2,
+       "name": "Fury",
+       "slug": "Fury"
+      },
+      {
+       "id": 3,
+       "name": "Protection",
+       "slug": "Protection"
+      }
+     ]
+    },
+    {
+     "id": 12,
+     "name": "Demon Hunter",
+     "slug": "DemonHunter",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Havoc",
+       "slug": "Havoc"
+      },
+      {
+       "id": 2,
+       "name": "Vengeance",
+       "slug": "Vengeance"
+      },
+      {
+       "id": 3,
+       "name": "Devourer",
+       "slug": "Devourer"
+      }
+     ]
+    },
+    {
+     "id": 13,
+     "name": "Evoker",
+     "slug": "Evoker",
+     "specs": [
+      {
+       "id": 1,
+       "name": "Devastation",
+       "slug": "Devastation"
+      },
+      {
+       "id": 2,
+       "name": "Preservation",
+       "slug": "Preservation"
+      },
+      {
+       "id": 3,
+       "name": "Augmentation",
+       "slug": "Augmentation"
+      }
+     ]
+    }
+   ]
+  },
+  "worldData": {
+   "expansions": [
+    {
+     "id": 7,
+     "name": "Midnight"
+    },
+    {
+     "id": 6,
+     "name": "The War Within"
+    },
+    {
+     "id": 5,
+     "name": "Dragonflight"
+    },
+    {
+     "id": 4,
+     "name": "Shadowlands"
+    },
+    {
+     "id": 3,
+     "name": "Battle for Azeroth"
+    },
+    {
+     "id": 2,
+     "name": "Legion"
+    },
+    {
+     "id": 1,
+     "name": "Warlords of Draenor"
+    },
+    {
+     "id": 0,
+     "name": "Mists of Pandaria"
+    }
+   ]
+  }
+ }
+}

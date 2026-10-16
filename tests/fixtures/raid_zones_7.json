@@ -1,0 +1,253 @@
+{
+ "data": {
+  "worldData": {
+   "zones": [
+    {
+     "id": 55,
+     "name": "Mythic+ Season 2",
+     "frozen": false,
+     "difficulties": [
+      {
+       "id": 10,
+       "name": "Dungeon"
+      }
+     ],
+     "encounters": [
+      {
+       "id": 12993,
+       "name": "Altar of Fangs"
+      },
+      {
+       "id": 12825,
+       "name": "Den of Nalorakk"
+      },
+      {
+       "id": 61762,
+       "name": "Kings' Rest"
+      },
+      {
+       "id": 12813,
+       "name": "Murder Row"
+      },
+      {
+       "id": 112521,
+       "name": "Ruby Life Pools"
+      },
+      {
+       "id": 61877,
+       "name": "Temple of Sethraliss"
+      },
+      {
+       "id": 12859,
+       "name": "The Blinding Vale"
+      },
+      {
+       "id": 12923,
+       "name": "Voidscar Arena"
+      }
+     ]
+    },
+    {
+     "id": 47,
+     "name": "Mythic+ Season 1",
+     "frozen": true,
+     "difficulties": [
+      {
+       "id": 10,
+       "name": "Dungeon"
+      }
+     ],
+     "encounters": [
+      {
+       "id": 112526,
+       "name": "Algeth'ar Academy"
+      },
+      {
+       "id": 12811,
+       "name": "Magisters' Terrace"
+      },
+      {
+       "id": 12874,
+       "name": "Maisara Caverns"
+      },
+      {
+       "id": 12915,
+       "name": "Nexus-Point Xenas"
+      },
+      {
+       "id": 10658,
+       "name": "Pit of Saron"
+      },
+      {
+       "id": 361753,
+       "name": "Seat of the Triumvirate"
+      },
+      {
+       "id": 61209,
+       "name": "Skyreach"
+      },
+      {
+       "id": 12805,
+       "name": "Windrunner Spire"
+      }
+     ]
+    },
+    {
+     "id": 53,
+     "name": "The Venomous Abyss",
+     "frozen": false,
+     "difficulties": [
+      {
+       "id": 5,
+       "name": "Mythic"
+      },
+      {
+       "id": 4,
+       "name": "Heroic"
+      },
+      {
+       "id": 3,
+       "name": "Normal"
+      },
+      {
+       "id": 1,
+       "name": "LFR"
+      }
+     ],
+     "encounters": [
+      {
+       "id": 3470,
+       "name": "Nek'zali the Soulcoiler"
+      },
+      {
+       "id": 3445,
+       "name": "Entombed Sentinels"
+      },
+      {
+       "id": 3455,
+       "name": "Vashnik the Malignant"
+      },
+      {
+       "id": 3497,
+       "name": "The Lost Explorers"
+      },
+      {
+       "id": 3420,
+       "name": "Sszorak"
+      },
+      {
+       "id": 3421,
+       "name": "The Twin Fangs"
+      },
+      {
+       "id": 3429,
+       "name": "The Coiled Altar"
+      },
+      {
+       "id": 3492,
+       "name": "Ula'tek"
+      },
+      {
+       "id": 3379,
+       "name": "Nymrissa Wavecaller"
+      },
+      {
+       "id": 3513,
+       "name": "Kith'ix"
+      }
+     ]
+    },
+    {
+     "id": 50,
+     "name": "Sporefall",
+     "frozen": true,
+     "difficulties": [
+      {
+       "id": 5,
+       "name": "Mythic"
+      },
+      {
+       "id": 4,
+       "name": "Heroic"
+      },
+      {
+       "id": 3,
+       "name": "Normal"
+      },
+      {
+       "id": 1,
+       "name": "LFR"
+      }
+     ],
+     "encounters": [
+      {
+       "id": 3159,
+       "name": "Rotmire"
+      }
+     ]
+    },
+    {
+     "id": 46,
+     "name": "VS / DR / MQD",
+     "frozen": true,
+     "difficulties": [
+      {
+       "id": 5,
+       "name": "Mythic"
+      },
+      {
+       "id": 4,
+       "name": "Heroic"
+      },
+      {
+       "id": 3,
+       "name": "Normal"
+      },
+      {
+       "id": 1,
+       "name": "LFR"
+      }
+     ],
+     "encounters": [
+      {
+       "id": 3176,
+       "name": "Imperator Averzian"
+      },
+      {
+       "id": 3177,
+       "name": "Vorasius"
+      },
+      {
+       "id": 3179,
+       "name": "Fallen-King Salhadaar"
+      },
+      {
+       "id": 3178,
+       "name": "Vaelgor & Ezzorak"
+      },
+      {
+       "id": 3180,
+       "name": "Lightblinded Vanguard"
+      },
+      {
+       "id": 3181,
+       "name": "Crown of the Cosmos"
+      },
+      {
+       "id": 3306,
+       "name": "Chimaerus, the Undreamt God"
+      },
+      {
+       "id": 3182,
+       "name": "Belo'ren, Child of Al'ar"
+      },
+      {
+       "id": 3183,
+       "name": "Midnight Falls"
+      }
+     ]
+    }
+   ]
+  }
+ }
+}

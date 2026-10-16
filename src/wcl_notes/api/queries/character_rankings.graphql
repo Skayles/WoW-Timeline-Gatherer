@@ -1,0 +1,27 @@
+# Top logs of a spec on a boss. characterRankings is raw JSON:
+# {page, hasMorePages, count, rankings: [{name, class, spec, amount, duration, startTime,
+#   report {code, fightID, startTime}, guild, server {name, region}}]} — no actor ID.
+query CharacterRankings(
+  $encounterID: Int!
+  $difficulty: Int!
+  $className: String!
+  $specName: String!
+  $metric: CharacterRankingMetricType!
+  $page: Int!
+  $serverRegion: String!
+) {
+  worldData {
+    encounter(id: $encounterID) {
+      id
+      name
+      characterRankings(
+        difficulty: $difficulty
+        className: $className
+        specName: $specName
+        metric: $metric
+        page: $page
+        serverRegion: $serverRegion
+      )
+    }
+  }
+}

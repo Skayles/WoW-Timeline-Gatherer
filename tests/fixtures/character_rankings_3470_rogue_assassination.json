@@ -1,0 +1,320 @@
+{
+ "data": {
+  "worldData": {
+   "encounter": {
+    "name": "Nek'zali the Soulcoiler",
+    "characterRankings": {
+     "page": 1,
+     "hasMorePages": true,
+     "count": 12,
+     "rankings": [
+      {
+       "name": "Classé1",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 257064.00335829,
+       "hardModeLevel": 0,
+       "duration": 285860,
+       "startTime": 1792053338662,
+       "report": {
+        "code": "mw6HFGc4DfZpv3qN",
+        "fightID": 1,
+        "startTime": 1792053226658
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 0
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "US"
+       },
+       "bracketData": 333,
+       "faction": 0
+      },
+      {
+       "name": "Classé2",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 249253.81424833,
+       "hardModeLevel": 0,
+       "duration": 314872,
+       "startTime": 1792025117354,
+       "report": {
+        "code": "ZJFCWyxpzM4jrtHK",
+        "fightID": 6,
+        "startTime": 1792024101504
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "US"
+       },
+       "bracketData": 333,
+       "faction": 0
+      },
+      {
+       "name": "Vénéfique",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 247155.55810116,
+       "hardModeLevel": 0,
+       "duration": 352392,
+       "startTime": 1791998940264,
+       "report": {
+        "code": "cmw7ZBvfaJV6DyKQ",
+        "fightID": 7,
+        "startTime": 1791986151142
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Ysondre",
+        "region": "EU"
+       },
+       "bracketData": 334,
+       "faction": 0
+      },
+      {
+       "name": "Classé4",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 245731.78851175,
+       "hardModeLevel": 0,
+       "duration": 306400,
+       "startTime": 1791990539537,
+       "report": {
+        "code": "6mwbDCtM7XFaxY4v",
+        "fightID": 1,
+        "startTime": 1791980755069
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 327,
+       "faction": 0
+      },
+      {
+       "name": "Classé5",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 245675.30188992,
+       "hardModeLevel": 0,
+       "duration": 349962,
+       "startTime": 1792087653170,
+       "report": {
+        "code": "NW9LAj1ZakXMHCxd",
+        "fightID": 5,
+        "startTime": 1792081395834
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 333,
+       "faction": 1
+      },
+      {
+       "name": "Classé6",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 244383.26182,
+       "hardModeLevel": 0,
+       "duration": 295516,
+       "startTime": 1792026865087,
+       "report": {
+        "code": "CqhYLdtMjRnTJyH4",
+        "fightID": 6,
+        "startTime": 1792025548017
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 0
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "US"
+       },
+       "bracketData": 331,
+       "faction": 0
+      },
+      {
+       "name": "Classé7",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 244206.0829268,
+       "hardModeLevel": 0,
+       "duration": 311166,
+       "startTime": 1792086786221,
+       "report": {
+        "code": "9ZYHwhk2gQRTdxP4",
+        "fightID": 6,
+        "startTime": 1792084890353
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 329,
+       "faction": 1
+      },
+      {
+       "name": "Classé8",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 242203.93703442,
+       "hardModeLevel": 0,
+       "duration": 296670,
+       "startTime": 1792149204181,
+       "report": {
+        "code": "HK86gDrmTG37BXVz",
+        "fightID": 8,
+        "startTime": 1792148184096
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "KR"
+       },
+       "bracketData": 332,
+       "faction": 0,
+       "guild": null
+      },
+      {
+       "name": "Classé9",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 241940.40801373,
+       "hardModeLevel": 0,
+       "duration": 311166,
+       "startTime": 1792086786221,
+       "report": {
+        "code": "9ZYHwhk2gQRTdxP4",
+        "fightID": 6,
+        "startTime": 1792084890353
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 333,
+       "faction": 1
+      },
+      {
+       "name": "Classé10",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 238799.97533344,
+       "hardModeLevel": 0,
+       "duration": 283785,
+       "startTime": 1791998924345,
+       "report": {
+        "code": "6qVxPcBdCgXrkG8a",
+        "fightID": 138,
+        "startTime": 1791975545434
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 0
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 333,
+       "faction": 0
+      },
+      {
+       "name": "Classé11",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 238478.00716038,
+       "hardModeLevel": 0,
+       "duration": 278477,
+       "startTime": 1792000032459,
+       "report": {
+        "code": "PKNH4qJgbG1Lk69B",
+        "fightID": 5,
+        "startTime": 1791997967663
+       },
+       "guild": {
+        "id": 0,
+        "name": "Guilde",
+        "faction": 1
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "EU"
+       },
+       "bracketData": 333,
+       "faction": 0
+      },
+      {
+       "name": "Classé12",
+       "class": "Rogue",
+       "spec": "Assassination",
+       "amount": 237334.55819372,
+       "hardModeLevel": 0,
+       "duration": 350244,
+       "startTime": 1792068708774,
+       "report": {
+        "code": "FmNybWfp314rQCjP",
+        "fightID": 14,
+        "startTime": 1792062363122
+       },
+       "server": {
+        "id": 0,
+        "name": "Serveur",
+        "region": "CN"
+       },
+       "bracketData": 330,
+       "faction": 0,
+       "guild": null
+      }
+     ]
+    }
+   }
+  }
+ }
+}

@@ -1,0 +1,17 @@
+# Zones of one expansion; raids are told apart by their difficulties (Mythic+ = 10).
+query RaidZones($expansionID: Int!) {
+  worldData {
+    zones(expansion_id: $expansionID) {
+      id
+      name
+      frozen
+      difficulties {
+        id
+      }
+      encounters {
+        id
+        name
+      }
+    }
+  }
+}

@@ -100,6 +100,9 @@ class FakeWcl:
             "PlayerDetails": lambda _: httpx.Response(
                 200, json=load_json("player_details_cmw7_f7.json")
             ),
+            "GameCatalog": lambda _: httpx.Response(200, json=load_json("game_catalog.json")),
+            "RaidZones": lambda _: httpx.Response(200, json=load_json("raid_zones_7.json")),
+            "CharacterRankings": self._rankings,
         }
         pages = load_json("casts_cmw7_f7_s118_pages.json")
         starts = [FIGHT_7_START] + [
@@ -127,6 +130,14 @@ class FakeWcl:
         if variables["sourceID"] == ROGUE_ID:
             return httpx.Response(200, json=load_json("casts_cmw7_f7_s126.json"))
         return _empty_events()
+
+    def _rankings(self, variables: dict[str, Any]) -> httpx.Response:
+        """Page 1 = the recorded Assassination top 12; page 2 = empty, last page."""
+        body = load_json("character_rankings_3470_rogue_assassination.json")
+        rankings = body["data"]["worldData"]["encounter"]["characterRankings"]
+        if variables["page"] > 1:
+            rankings.update(page=variables["page"], hasMorePages=False, rankings=[])
+        return httpx.Response(200, json=body)
 
     def _pet_casts(self, variables: dict[str, Any]) -> httpx.Response:
         if variables["sourceID"] == FIRE_ELEMENTAL_ID:

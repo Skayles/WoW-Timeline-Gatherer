@@ -1,0 +1,21 @@
+# Classes and specs (names expected by characterRankings) and the list of expansions.
+query GameCatalog {
+  gameData {
+    classes {
+      id
+      name
+      slug
+      specs {
+        id
+        name
+        slug
+      }
+    }
+  }
+  worldData {
+    expansions {
+      id
+      name
+    }
+  }
+}
