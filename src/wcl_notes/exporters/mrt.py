@@ -19,8 +19,13 @@ def format_mrt_time(time_ms: int) -> str:
 
 def export_mrt(casts: Iterable[Cast], player_name: str, *, offset_ms: int = 0) -> str:
     """Build the note; ``offset_ms`` moves every cast earlier to get warned ahead."""
-    name = character_name(player_name)
+    return export_mrt_entries(((player_name, cast) for cast in casts), offset_ms=offset_ms)
+
+
+def export_mrt_entries(entries: Iterable[tuple[str, Cast]], *, offset_ms: int = 0) -> str:
+    """Several players in one note (raid note), merged in time order."""
     return "\n".join(
-        f"{{time:{format_mrt_time(cast.time_ms - offset_ms)}}} - {name} {{spell:{cast.spell_id}}}"
-        for cast in sorted(casts, key=lambda c: c.time_ms)
+        f"{{time:{format_mrt_time(cast.time_ms - offset_ms)}}} - "
+        f"{character_name(name)} {{spell:{cast.spell_id}}}"
+        for name, cast in sorted(entries, key=lambda entry: entry[1].time_ms)
     )

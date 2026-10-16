@@ -47,14 +47,23 @@ def export_nsrt(
     dur: int | None = None,
 ) -> str:
     """Casts are written in the order given (chronological from ``phase_casts``)."""
+    return export_nsrt_entries(((player_name, cast) for cast in casts), header, dur=dur)
+
+
+def export_nsrt_entries(
+    entries: Iterable[tuple[str, PhasedCast]],
+    header: NsrtHeader,
+    *,
+    dur: int | None = None,
+) -> str:
+    """Several players in one note (raid note), written in the order given."""
     first = f"EncounterID:{header.encounter_id};Name:{_clean(header.name)}"
     if header.difficulty:
         first += f";Difficulty:{header.difficulty}"
-    tag = _clean(character_name(player_name))
     lines = [first]
-    for cast in casts:
+    for name, cast in entries:
         fields = [
-            f"tag:{tag}",
+            f"tag:{_clean(character_name(name))}",
             f"time:{format_nsrt_time(cast.time_ms)}",
             f"spellid:{cast.spell_id}",
             f"ph:{format_nsrt_phase(cast.phase)}",

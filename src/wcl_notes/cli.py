@@ -15,14 +15,12 @@ from wcl_notes.api.client import WclClient
 from wcl_notes.api.credentials import load_credentials
 from wcl_notes.api.errors import WclError
 from wcl_notes.api.reports import fetch_pet_casts, fetch_player_casts, fetch_report
-from wcl_notes.domain.encounters import MappingStatus
-from wcl_notes.domain.models import Actor, Cast, Fight, Report
+from wcl_notes.domain.models import Actor, Cast, Fight, Report, Track, TrackRef
 from wcl_notes.domain.names import character_name
 from wcl_notes.domain.spells import SpecSpells
-from wcl_notes.exporters.mrt import export_mrt, format_mrt_time
-from wcl_notes.exporters.nsrt import NSRT_DIFFICULTY, NsrtHeader, export_nsrt, format_nsrt_phase
-from wcl_notes.services.data_files import load_spec_spells, nsrt_mapping, spec_file_name
-from wcl_notes.services.phases import nsrt_segments, phase_casts
+from wcl_notes.exporters.mrt import format_mrt_time
+from wcl_notes.services.data_files import load_spec_spells, spec_file_name
+from wcl_notes.services.notes import NoteAssignment, NoteFormat, NoteOptions, build_note
 from wcl_notes.services.report_navigation import (
     NavigationError,
     boss_fights,
@@ -40,10 +38,6 @@ from wcl_notes.services.timeline import build_casts, spell_counts
 
 DEFAULT_PLAYER_NAME = "Kràùck"
 DIFFICULTY_LABELS = {1: "LFR", 3: "Normal", 4: "Héroïque", 5: "Mythique", 10: "Mythique+"}
-MAPPING_STATUS_LABELS = {
-    MappingStatus.APPROXIMATE: "phases NSRT approximatives",
-    MappingStatus.UNVERIFIED: "phases NSRT non vérifiées",
-}
 
 ClientFactory = Callable[[argparse.Namespace], WclClient]
 
@@ -145,16 +139,21 @@ def _run(args: argparse.Namespace, client: WclClient) -> int:
         return 0
 
     casts = _select_casts(casts, args, player, spec_spells)
-    offset_ms = round(args.offset * 1000)
     print(
         f"# Source : {player.name} ({_spec_label(player)}) — {_fight_label(fight)} — "
         f"{len(casts)} casts. Adaptez à votre compo et à votre temps de kill.",
         file=sys.stderr,
     )
-    if args.format == "nsrt":
-        note = _nsrt_note(fight, casts, args.name, offset_ms=offset_ms, dur=args.dur)
-    else:
-        note = export_mrt(casts, args.name, offset_ms=offset_ms)
+    track = Track(TrackRef(report.code, fight.id, player.id), player, fight, casts)
+    options = NoteOptions(
+        format=NoteFormat(args.format), offset_ms=round(args.offset * 1000), dur=args.dur
+    )
+    result = build_note([NoteAssignment(track, casts, args.name)], options)
+    for info in result.infos:
+        print(f"# {info}", file=sys.stderr)
+    for warning in result.warnings:
+        print(f"# Attention, {warning}", file=sys.stderr)
+    note = result.text
 
     if args.output:
         args.output.write_text(note + "\n", encoding="utf-8")
@@ -188,28 +187,6 @@ def _select_casts(
     )
     selected = spec_spells.default_ids()
     return tuple(c for c in casts if c.spell_id in selected)
-
-
-def _nsrt_note(
-    fight: Fight, casts: Sequence[Cast], name: str, *, offset_ms: int, dur: int | None
-) -> str:
-    mapping = nsrt_mapping(fight.encounter_id)
-    segments = nsrt_segments(fight, mapping)
-    phases = ", ".join(
-        f"{format_nsrt_phase(s.phase)} à {format_mrt_time(s.start_ms)}" for s in segments
-    )
-    print(f"# Phases NSRT : {phases}", file=sys.stderr)
-    if mapping.status is not MappingStatus.VERIFIED:
-        print(
-            f"# Attention, {MAPPING_STATUS_LABELS[mapping.status]} : {mapping.note}",
-            file=sys.stderr,
-        )
-    header = NsrtHeader(
-        encounter_id=fight.encounter_id,
-        name=fight.name,
-        difficulty=NSRT_DIFFICULTY.get(fight.difficulty) if fight.difficulty else None,
-    )
-    return export_nsrt(phase_casts(casts, segments, offset_ms=offset_ms), name, header, dur=dur)
 
 
 def _default_client(args: argparse.Namespace) -> WclClient:

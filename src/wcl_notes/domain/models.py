@@ -17,6 +17,12 @@ class Difficulty(IntEnum):
     MYTHIC = 5
 
 
+class Role(StrEnum):
+    TANK = "tank"
+    HEALER = "healer"
+    DPS = "dps"
+
+
 class CastKind(StrEnum):
     BEGIN_CAST = "begincast"
     CAST = "cast"
